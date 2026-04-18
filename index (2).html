@@ -1,0 +1,1256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CancerSaathi – Full App</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #0D2B55; --navy-mid: #1A3F78; --navy-light: #2C5282;
+    --teal: #0A7E6E; --teal-light: #1BA090; --teal-pale: #E6F4F2;
+    --green: #2E7D5E; --green-light: #E8F5EE;
+    --white: #FFFFFF; --off-white: #F8FAFB;
+    --gray-50: #F1F4F8; --gray-100: #E2E8F0; --gray-300: #A0AABA; --gray-500: #64748B; --gray-700: #334155;
+    --red: #C62828; --red-light: #FFEBEE;
+    --orange: #E65100; --orange-light: #FFF3E0;
+    --gold: #B7860D; --gold-light: #FFF8E1;
+    --font: 'DM Sans', sans-serif; --font-display: 'Playfair Display', serif;
+    --radius: 16px; --radius-sm: 10px;
+    --shadow: 0 4px 20px rgba(13,43,85,0.10); --shadow-lg: 0 8px 40px rgba(13,43,85,0.16);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #E8EDF4; font-family: var(--font); display: flex; flex-direction: column; align-items: center; min-height: 100vh; padding: 32px 16px 48px; }
+  .device { width: 390px; min-height: 844px; background: var(--white); border-radius: 48px; box-shadow: 0 20px 80px rgba(0,0,0,0.22), 0 4px 12px rgba(0,0,0,0.10); overflow: hidden; position: relative; border: 2px solid #CBD5E1; }
+  .status-bar { background: var(--navy); padding: 14px 28px 10px; display: flex; justify-content: space-between; align-items: center; color: white; font-size: 12px; font-weight: 600; }
+  .status-bar .time { font-size: 15px; font-weight: 700; }
+  .status-icons { display: flex; gap: 5px; align-items: center; }
+  .screen { display: none; flex-direction: column; min-height: 780px; background: var(--off-white); position: relative; overflow-y: auto; overflow-x: hidden; }
+  .screen.active { display: flex; }
+  .nav-header { background: var(--navy); padding: 20px 24px 22px; color: white; display: flex; align-items: center; gap: 14px; position: sticky; top: 0; z-index: 10; }
+  .nav-back { width: 36px; height: 36px; background: rgba(255,255,255,0.15); border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 16px; border: none; color: white; flex-shrink: 0; transition: background 0.2s; }
+  .nav-back:hover { background: rgba(255,255,255,0.25); }
+  .nav-title { font-size: 17px; font-weight: 600; flex: 1; }
+
+  /* HOME */
+  #screen-home { background: var(--white); }
+  .home-hero { background: linear-gradient(160deg, var(--navy) 0%, var(--navy-mid) 55%, var(--teal) 100%); padding: 36px 28px 44px; color: white; position: relative; overflow: hidden; }
+  .home-hero::before { content: ''; position: absolute; width: 280px; height: 280px; border-radius: 50%; background: rgba(255,255,255,0.04); top: -80px; right: -60px; }
+  .home-hero::after { content: ''; position: absolute; width: 180px; height: 180px; border-radius: 50%; background: rgba(255,255,255,0.06); bottom: -40px; left: -40px; }
+  .home-logo { display: flex; align-items: center; gap: 10px; margin-bottom: 28px; }
+  .logo-mark { width: 42px; height: 42px; background: var(--teal-light); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 22px; }
+  .logo-text { font-size: 22px; font-weight: 700; letter-spacing: -0.3px; }
+  .logo-text span { color: #7ECFC5; }
+  .home-greeting { font-size: 13px; color: rgba(255,255,255,0.65); margin-bottom: 6px; }
+  .home-title { font-family: var(--font-display); font-size: 28px; line-height: 1.25; margin-bottom: 10px; }
+  .home-subtitle { font-size: 14px; color: rgba(255,255,255,0.72); line-height: 1.55; }
+  .home-body { padding: 24px 20px 100px; }
+  .section-label { font-size: 11px; font-weight: 700; color: var(--gray-500); letter-spacing: 1.2px; text-transform: uppercase; margin-bottom: 14px; }
+  .feature-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 28px; }
+  .feature-card { background: var(--white); border-radius: var(--radius); padding: 20px 16px; box-shadow: var(--shadow); cursor: pointer; transition: transform 0.18s, box-shadow 0.18s; border: 1.5px solid transparent; display: flex; flex-direction: column; gap: 10px; }
+  .feature-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); }
+  .feature-card:active { transform: scale(0.97); }
+  .feature-card.sos { grid-column: 1 / -1; flex-direction: row; align-items: center; background: linear-gradient(135deg, var(--red) 0%, #B71C1C 100%); color: white; }
+  .card-icon { width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0; }
+  .card-icon.teal { background: var(--teal-pale); } .card-icon.green { background: var(--green-light); } .card-icon.gold { background: var(--gold-light); } .card-icon.blue { background: #EBF4FF; }
+  .card-icon.red { background: rgba(255,255,255,0.2); font-size: 28px; width: 52px; height: 52px; border-radius: 50%; }
+  .card-icon.purple { background: #EDE9FE; }
+  .card-title { font-size: 14px; font-weight: 600; color: var(--navy); line-height: 1.3; }
+  .card-sub { font-size: 12px; color: var(--gray-500); line-height: 1.45; }
+  .feature-card.sos .card-title { font-size: 16px; color: white; } .feature-card.sos .card-sub { font-size: 13px; color: rgba(255,255,255,0.8); }
+  .sos-text { flex: 1; } .sos-badge { background: rgba(255,255,255,0.25); border-radius: 20px; padding: 4px 12px; font-size: 11px; font-weight: 700; color: white; margin-left: auto; }
+  .tip-card { background: linear-gradient(135deg, #E8F5EE, #D1EDE3); border-radius: var(--radius); padding: 18px 20px; display: flex; gap: 14px; align-items: flex-start; border-left: 4px solid var(--teal); }
+  .tip-icon { font-size: 22px; flex-shrink: 0; margin-top: 2px; }
+  .tip-title { font-size: 13px; font-weight: 700; color: var(--green); margin-bottom: 5px; }
+  .tip-text { font-size: 12px; color: var(--gray-700); line-height: 1.5; }
+
+  /* AI CHAT SCREEN */
+  #screen-chat { background: var(--off-white); }
+  .chat-header { background: linear-gradient(135deg, var(--teal) 0%, var(--navy-mid) 100%); padding: 20px 24px 22px; color: white; display: flex; align-items: center; gap: 14px; position: sticky; top: 0; z-index: 10; }
+  .chat-ai-avatar { width: 40px; height: 40px; background: rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+  .chat-messages { flex: 1; padding: 16px 16px 80px; display: flex; flex-direction: column; gap: 12px; overflow-y: auto; min-height: 500px; }
+  .msg { max-width: 85%; display: flex; flex-direction: column; gap: 4px; }
+  .msg.user { align-self: flex-end; }
+  .msg.bot { align-self: flex-start; }
+  .msg-bubble { padding: 12px 14px; border-radius: 18px; font-size: 13px; line-height: 1.55; }
+  .msg.user .msg-bubble { background: var(--navy); color: white; border-bottom-right-radius: 4px; }
+  .msg.bot .msg-bubble { background: var(--white); color: var(--gray-700); box-shadow: var(--shadow); border-bottom-left-radius: 4px; }
+  .msg-time { font-size: 10px; color: var(--gray-300); }
+  .msg.user .msg-time { text-align: right; }
+  .chat-input-bar { position: sticky; bottom: 0; background: var(--white); padding: 10px 14px; display: flex; gap: 10px; align-items: center; border-top: 1px solid var(--gray-100); z-index: 10; }
+  .chat-input { flex: 1; padding: 10px 14px; border: 1.5px solid var(--gray-100); border-radius: 24px; font-size: 13px; font-family: var(--font); outline: none; background: var(--gray-50); transition: border 0.2s; }
+  .chat-input:focus { border-color: var(--teal); background: white; }
+  .chat-send-btn { width: 40px; height: 40px; border-radius: 50%; background: var(--navy); color: white; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; transition: background 0.2s; }
+  .chat-send-btn:hover { background: var(--teal); }
+  .chat-send-btn:disabled { background: var(--gray-300); cursor: default; }
+  .typing-indicator { display: flex; gap: 4px; padding: 12px 14px; background: var(--white); border-radius: 18px; box-shadow: var(--shadow); width: fit-content; }
+  .typing-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--gray-300); animation: typingBounce 1.2s ease-in-out infinite; }
+  .typing-dot:nth-child(2) { animation-delay: 0.2s; } .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes typingBounce { 0%, 100% { transform: translateY(0); background: var(--gray-300); } 50% { transform: translateY(-5px); background: var(--teal); } }
+  .chat-quick-btns { display: flex; flex-wrap: wrap; gap: 6px; padding: 0 16px 8px; }
+  .quick-btn { background: var(--teal-pale); color: var(--teal); border: 1.5px solid rgba(10,126,110,0.25); border-radius: 20px; padding: 6px 12px; font-size: 11px; font-weight: 600; cursor: pointer; font-family: var(--font); transition: all 0.2s; white-space: nowrap; }
+  .quick-btn:hover { background: var(--teal); color: white; }
+
+  /* BOTTOM NAV */
+  .bottom-nav { position: sticky; bottom: 0; width: 100%; background: var(--white); border-top: 1px solid var(--gray-100); display: flex; padding: 10px 0 20px; z-index: 100; box-shadow: 0 -4px 20px rgba(0,0,0,0.07); margin-top: auto; }
+  .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; padding: 4px; border: none; background: none; }
+  .nav-item .ni-icon { font-size: 20px; } .nav-item .ni-label { font-size: 10px; font-weight: 600; color: var(--gray-300); font-family: var(--font); }
+  .nav-item.active .ni-label { color: var(--teal); }
+
+  /* PATIENT NAVIGATOR */
+  .pn-header { background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 100%); padding: 24px 24px 32px; color: white; }
+  .pn-header h2 { font-size: 22px; font-weight: 700; margin-bottom: 6px; }
+  .pn-header p { font-size: 13px; color: rgba(255,255,255,0.7); line-height: 1.5; }
+  .stage-selector { margin-top: 18px; display: flex; gap: 8px; }
+  .stage-pill { background: rgba(255,255,255,0.12); border: 1.5px solid rgba(255,255,255,0.2); color: rgba(255,255,255,0.8); border-radius: 20px; padding: 6px 14px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s; font-family: var(--font); }
+  .stage-pill.active { background: var(--teal-light); border-color: var(--teal-light); color: white; }
+  .pn-body { padding: 20px 20px 100px; }
+  .journey-card { background: var(--white); border-radius: var(--radius); padding: 18px 20px; margin-bottom: 14px; box-shadow: var(--shadow); display: flex; gap: 16px; align-items: flex-start; cursor: pointer; border-left: 4px solid transparent; transition: all 0.2s; }
+  .journey-card:hover { transform: translateX(3px); border-left-color: var(--teal); }
+  .journey-card.done { border-left-color: var(--green); }
+  .journey-card.current { border-left-color: var(--navy); background: #EBF4FF; }
+  .jc-step { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; flex-shrink: 0; margin-top: 2px; }
+  .jc-step.done { background: var(--green); color: white; } .jc-step.current { background: var(--navy); color: white; } .jc-step.upcoming { background: var(--gray-100); color: var(--gray-500); }
+  .jc-title { font-size: 15px; font-weight: 600; color: var(--navy); margin-bottom: 4px; }
+  .jc-desc { font-size: 12px; color: var(--gray-500); line-height: 1.5; }
+  .jc-tag { display: inline-block; background: var(--teal-pale); color: var(--teal); border-radius: 10px; padding: 2px 10px; font-size: 11px; font-weight: 600; margin-top: 6px; }
+  .jc-tag.current { background: #EBF4FF; color: var(--navy-mid); }
+  .resource-row { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 8px; margin-bottom: 24px; scrollbar-width: none; }
+  .resource-chip { background: var(--white); border: 1.5px solid var(--gray-100); border-radius: 12px; padding: 12px 16px; min-width: 140px; flex-shrink: 0; cursor: pointer; transition: border-color 0.2s; }
+  .resource-chip:hover { border-color: var(--teal); }
+  .rc-icon { font-size: 20px; margin-bottom: 6px; } .rc-title { font-size: 12px; font-weight: 600; color: var(--navy); } .rc-sub { font-size: 11px; color: var(--gray-500); }
+
+  /* SURVIVOR CONNECT */
+  .sc-header { background: linear-gradient(135deg, var(--teal) 0%, var(--navy-mid) 100%); padding: 24px 24px 32px; color: white; }
+  .sc-header h2 { font-size: 22px; font-weight: 700; margin-bottom: 6px; }
+  .sc-header p { font-size: 13px; color: rgba(255,255,255,0.75); line-height: 1.5; }
+  .sc-tabs { display: flex; background: rgba(255,255,255,0.1); border-radius: 12px; padding: 4px; margin-top: 16px; gap: 2px; }
+  .sc-tab { flex: 1; text-align: center; padding: 8px; border-radius: 10px; font-size: 12px; font-weight: 600; color: rgba(255,255,255,0.65); cursor: pointer; transition: all 0.2s; border: none; background: none; font-family: var(--font); }
+  .sc-tab.active { background: white; color: var(--teal); }
+  .sc-body { padding: 20px 20px 100px; }
+  .survivor-card { background: var(--white); border-radius: var(--radius); padding: 18px 20px; margin-bottom: 14px; box-shadow: var(--shadow); cursor: pointer; transition: transform 0.18s; }
+  .survivor-card:hover { transform: translateY(-2px); }
+  .sc-top { display: flex; align-items: center; gap: 14px; margin-bottom: 12px; }
+  .survivor-avatar { width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+  .survivor-name { font-size: 15px; font-weight: 700; color: var(--navy); } .survivor-meta { font-size: 12px; color: var(--gray-500); margin-top: 2px; }
+  .survivor-story { font-size: 13px; color: var(--gray-700); line-height: 1.6; }
+  .survivor-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+  .stag { background: var(--teal-pale); color: var(--teal); border-radius: 8px; padding: 3px 10px; font-size: 11px; font-weight: 600; }
+  .sc-connect-btn { margin-top: 12px; width: 100%; padding: 10px; border-radius: 10px; background: var(--navy); color: white; font-size: 13px; font-weight: 600; border: none; cursor: pointer; font-family: var(--font); transition: background 0.2s; }
+  .sc-connect-btn:hover { background: var(--navy-mid); }
+  .group-card { background: var(--white); border-radius: var(--radius); padding: 18px 20px; margin-bottom: 14px; box-shadow: var(--shadow); display: flex; gap: 16px; align-items: center; cursor: pointer; }
+  .group-icon { width: 52px; height: 52px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 26px; flex-shrink: 0; }
+  .group-name { font-size: 15px; font-weight: 700; color: var(--navy); margin-bottom: 4px; } .group-desc { font-size: 12px; color: var(--gray-500); line-height: 1.4; } .group-members { font-size: 11px; color: var(--teal); font-weight: 600; margin-top: 4px; }
+  .join-btn { margin-left: auto; padding: 8px 14px; border-radius: 8px; background: var(--teal-pale); color: var(--teal); font-size: 12px; font-weight: 700; border: none; cursor: pointer; flex-shrink: 0; font-family: var(--font); }
+
+  /* DOCTOR PREP */
+  .dv-header { background: linear-gradient(135deg, var(--navy) 0%, var(--navy-light) 100%); padding: 24px 24px 32px; color: white; }
+  .dv-header h2 { font-size: 22px; font-weight: 700; margin-bottom: 6px; }
+  .dv-header p { font-size: 13px; color: rgba(255,255,255,0.72); line-height: 1.5; }
+  .appt-banner { background: rgba(255,255,255,0.12); border-radius: 12px; padding: 12px 16px; margin-top: 16px; display: flex; align-items: center; gap: 10px; font-size: 13px; }
+  .appt-banner span { flex: 1; }
+  .appt-edit { background: rgba(255,255,255,0.2); border: none; color: white; padding: 4px 10px; border-radius: 8px; font-size: 11px; font-weight: 600; cursor: pointer; font-family: var(--font); }
+  .dv-body { padding: 20px 20px 100px; }
+  .prep-section { background: var(--white); border-radius: var(--radius); padding: 18px 20px; margin-bottom: 16px; box-shadow: var(--shadow); }
+  .prep-section-title { font-size: 14px; font-weight: 700; color: var(--navy); margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+  .ps-icon { font-size: 18px; }
+  .question-item { display: flex; align-items: flex-start; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--gray-100); cursor: pointer; }
+  .question-item:last-child { border-bottom: none; }
+  .qi-check { width: 20px; height: 20px; border-radius: 50%; border: 2px solid var(--gray-300); flex-shrink: 0; margin-top: 2px; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+  .qi-check.checked { background: var(--teal); border-color: var(--teal); color: white; font-size: 11px; }
+  .qi-text { font-size: 13px; color: var(--gray-700); line-height: 1.5; }
+  .symptom-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .symptom-chip { background: var(--gray-50); border-radius: 10px; padding: 10px 12px; font-size: 12px; font-weight: 500; color: var(--navy); cursor: pointer; border: 2px solid transparent; transition: all 0.2s; display: flex; align-items: center; gap: 6px; }
+  .symptom-chip.selected { background: var(--teal-pale); border-color: var(--teal); color: var(--teal); }
+  .ai-suggestion { background: linear-gradient(135deg, var(--teal-pale), #E0F2F1); border-radius: 12px; padding: 14px 16px; margin-top: 14px; display: flex; gap: 10px; border: 1px solid rgba(10,126,110,0.15); }
+  .ai-icon { font-size: 18px; flex-shrink: 0; }
+  .ai-text { font-size: 12px; color: var(--teal); line-height: 1.55; font-weight: 500; }
+  .ai-text strong { font-weight: 700; }
+  .ai-text.loading { color: var(--gray-500); font-style: italic; }
+  .generate-btn { width: 100%; padding: 16px; background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 100%); color: white; font-size: 15px; font-weight: 700; border: none; border-radius: var(--radius); cursor: pointer; font-family: var(--font); margin-top: 4px; box-shadow: 0 4px 16px rgba(13,43,85,0.3); transition: opacity 0.2s; }
+  .generate-btn:hover { opacity: 0.9; }
+  .add-question-btn { width: 100%; padding: 10px; border: 2px dashed var(--teal); border-radius: 10px; background: none; color: var(--teal); font-size: 13px; font-weight: 600; cursor: pointer; font-family: var(--font); margin-top: 4px; }
+
+  /* FINANCIAL AID */
+  .fa-header { background: linear-gradient(135deg, var(--green) 0%, var(--teal) 100%); padding: 24px 24px 32px; color: white; }
+  .fa-header h2 { font-size: 22px; font-weight: 700; margin-bottom: 6px; }
+  .fa-header p { font-size: 13px; color: rgba(255,255,255,0.75); line-height: 1.5; }
+  .fa-stats { display: flex; gap: 10px; margin-top: 16px; }
+  .fa-stat { flex: 1; background: rgba(255,255,255,0.15); border-radius: 12px; padding: 12px; text-align: center; }
+  .fa-stat-num { font-size: 22px; font-weight: 700; } .fa-stat-label { font-size: 10px; color: rgba(255,255,255,0.75); font-weight: 600; margin-top: 2px; }
+  .fa-body { padding: 20px 20px 100px; }
+  .filter-row { display: flex; gap: 8px; margin-bottom: 20px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
+  .filter-chip { background: var(--white); border: 1.5px solid var(--gray-100); border-radius: 20px; padding: 7px 16px; font-size: 12px; font-weight: 600; color: var(--gray-500); cursor: pointer; white-space: nowrap; transition: all 0.2s; font-family: var(--font); }
+  .filter-chip.active { background: var(--navy); color: white; border-color: var(--navy); }
+  .aid-card { background: var(--white); border-radius: var(--radius); padding: 18px 20px; margin-bottom: 14px; box-shadow: var(--shadow); cursor: pointer; transition: transform 0.18s; }
+  .aid-card:hover { transform: translateY(-2px); }
+  .aid-top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 10px; }
+  .aid-org { font-size: 11px; font-weight: 700; color: var(--gray-500); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 4px; }
+  .aid-name { font-size: 15px; font-weight: 700; color: var(--navy); line-height: 1.3; }
+  .aid-badge { background: var(--green-light); color: var(--green); border-radius: 8px; padding: 4px 10px; font-size: 11px; font-weight: 700; flex-shrink: 0; margin-left: 10px; }
+  .aid-badge.gold-badge { background: var(--gold-light); color: var(--gold); }
+  .aid-desc { font-size: 12px; color: var(--gray-500); line-height: 1.55; margin-bottom: 12px; }
+  .aid-meta { display: flex; gap: 12px; flex-wrap: wrap; }
+  .aid-meta-item { font-size: 11px; color: var(--gray-500); display: flex; align-items: center; gap: 4px; }
+  .apply-btn { width: 100%; margin-top: 14px; padding: 10px; border-radius: 10px; background: linear-gradient(135deg, var(--green) 0%, var(--teal) 100%); color: white; font-size: 13px; font-weight: 700; border: none; cursor: pointer; font-family: var(--font); transition: opacity 0.2s; }
+  .apply-btn:hover { opacity: 0.9; }
+  .elig-checker-btn { width: 100%; padding: 13px; background: linear-gradient(135deg, #0D2B55, #1A3F78); color: white; border: none; border-radius: 12px; font-size: 14px; font-weight: 700; cursor: pointer; font-family: var(--font); margin-bottom: 16px; box-shadow: 0 4px 14px rgba(13,43,85,0.25); transition: opacity 0.2s; }
+  .elig-checker-btn:hover { opacity: 0.9; }
+
+  /* SOS */
+  #screen-sos { background: var(--white); }
+  .sos-nav { background: var(--red); padding: 20px 24px 22px; color: white; display: flex; align-items: center; gap: 14px; position: sticky; top: 0; z-index: 10; }
+  .sos-body { padding: 0 0 100px; }
+  .sos-hero { background: linear-gradient(160deg, #B71C1C 0%, #C62828 40%, #D32F2F 100%); padding: 36px 28px; text-align: center; color: white; position: relative; overflow: hidden; }
+  .sos-hero::before { content: ''; position: absolute; width: 300px; height: 300px; border-radius: 50%; background: rgba(255,255,255,0.04); top: -100px; right: -80px; }
+  .sos-pulse-ring { width: 130px; height: 130px; border-radius: 50%; background: rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; position: relative; animation: pulse-ring 2s ease-in-out infinite; }
+  @keyframes pulse-ring { 0%, 100% { box-shadow: 0 0 0 0 rgba(255,255,255,0.3); } 50% { box-shadow: 0 0 0 20px rgba(255,255,255,0); } }
+  .sos-main-btn { width: 100px; height: 100px; border-radius: 50%; background: white; color: var(--red); font-size: 13px; font-weight: 800; display: flex; flex-direction: column; align-items: center; justify-content: center; border: none; cursor: pointer; box-shadow: 0 8px 24px rgba(0,0,0,0.25); gap: 2px; font-family: var(--font); transition: transform 0.15s; }
+  .sos-main-btn:active { transform: scale(0.95); }
+  .sos-main-btn .sos-icon { font-size: 28px; }
+  .sos-hero-title { font-size: 20px; font-weight: 700; margin-bottom: 6px; } .sos-hero-sub { font-size: 13px; color: rgba(255,255,255,0.75); line-height: 1.5; }
+  .sos-section { padding: 20px 20px 0; }
+  .sos-section-title { font-size: 13px; font-weight: 700; color: var(--gray-500); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 14px; }
+  .contact-card { background: var(--white); border-radius: var(--radius); padding: 16px 18px; margin-bottom: 10px; box-shadow: var(--shadow); display: flex; align-items: center; gap: 14px; border: 1.5px solid var(--gray-100); }
+  .contact-avatar { width: 46px; height: 46px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+  .contact-name { font-size: 14px; font-weight: 700; color: var(--navy); } .contact-role { font-size: 12px; color: var(--gray-500); margin-top: 2px; }
+  .contact-actions { margin-left: auto; display: flex; gap: 8px; }
+  .contact-btn { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; border: none; cursor: pointer; transition: opacity 0.2s; }
+  .contact-btn.call { background: var(--green); color: white; } .contact-btn.msg { background: var(--teal-pale); color: var(--teal); }
+  .contact-btn:hover { opacity: 0.8; }
+  .helpline-card { background: var(--red-light); border-radius: var(--radius); padding: 16px 18px; margin-bottom: 10px; display: flex; align-items: center; gap: 14px; border: 1.5px solid rgba(198,40,40,0.15); cursor: pointer; transition: opacity 0.2s; }
+  .helpline-card:hover { opacity: 0.85; }
+  .helpline-icon { font-size: 26px; flex-shrink: 0; }
+  .helpline-name { font-size: 14px; font-weight: 700; color: var(--red); } .helpline-num { font-size: 20px; font-weight: 800; color: var(--red); letter-spacing: 1px; } .helpline-sub { font-size: 11px; color: var(--gray-500); margin-top: 2px; }
+  .helpline-call-btn { margin-left: auto; background: var(--red); color: white; border: none; border-radius: 10px; padding: 8px 14px; font-size: 12px; font-weight: 700; cursor: pointer; font-family: var(--font); flex-shrink: 0; }
+  .location-card { background: var(--navy); border-radius: var(--radius); padding: 18px 20px; color: white; display: flex; align-items: center; gap: 14px; cursor: pointer; transition: opacity 0.2s; margin-bottom: 20px; }
+  .location-card:hover { opacity: 0.9; }
+  .location-card .lc-icon { font-size: 26px; flex-shrink: 0; }
+  .location-card .lc-title { font-size: 15px; font-weight: 700; margin-bottom: 3px; }
+  .location-card .lc-sub { font-size: 12px; color: rgba(255,255,255,0.7); }
+  .location-card .lc-arrow { margin-left: auto; font-size: 18px; opacity: 0.6; }
+  .add-contact-row { display: flex; align-items: center; gap: 12px; padding: 12px 16px; background: #E6F4F2; border-radius: 12px; cursor: pointer; margin-top: 10px; border: 1.5px dashed #0A7E6E; }
+  .add-contact-icon { width: 40px; height: 40px; border-radius: 50%; background: #0A7E6E; color: white; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+  .add-contact-label { font-size: 14px; font-weight: 600; color: #0A7E6E; }
+
+  /* PROTO NAV */
+  .proto-label { margin-top: 20px; font-size: 12px; color: #64748B; font-family: var(--font); font-weight: 600; letter-spacing: 0.5px; display: flex; gap: 8px; align-items: center; }
+  .proto-label::before, .proto-label::after { content: ''; flex: 1; height: 1px; background: #CBD5E1; }
+  .screen-nav-pills { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; max-width: 480px; margin-top: 16px; }
+  .snp { background: white; border: 1.5px solid #CBD5E1; border-radius: 20px; padding: 7px 16px; font-size: 12px; font-weight: 600; color: #334155; cursor: pointer; font-family: var(--font); transition: all 0.2s; }
+  .snp:hover, .snp.active { background: var(--navy); color: white; border-color: var(--navy); }
+
+  /* MODALS */
+  .modal-sheet { background: white; border-radius: 24px 24px 0 0; width: 390px; max-height: 88vh; overflow: hidden; display: flex; flex-direction: column; position: relative; animation: slideUp 0.3s ease; }
+  .modal-close-btn { position: absolute; top: 14px; right: 16px; width: 32px; height: 32px; border-radius: 50%; border: none; background: #E2E8F0; color: #334155; font-size: 14px; cursor: pointer; z-index: 10; }
+  .modal-body-scroll { padding: 20px 20px 32px; overflow-y: auto; flex: 1; }
+  .modal-header-pill { display: inline-block; border-radius: 20px; padding: 5px 14px; font-size: 12px; font-weight: 700; margin-bottom: 12px; }
+  .modal-header-pill.green { background: #E8F5EE; color: #2E7D5E; } .modal-header-pill.gold { background: #FFF8E1; color: #B7860D; }
+  .modal-org { font-size: 11px; font-weight: 700; color: #64748B; letter-spacing: 0.8px; text-transform: uppercase; margin-bottom: 4px; }
+  .modal-title { font-size: 20px; font-weight: 700; color: #0D2B55; line-height: 1.3; margin-bottom: 6px; }
+  .modal-amount { font-size: 26px; font-weight: 800; color: #2E7D5E; margin-bottom: 10px; }
+  .modal-desc { font-size: 13px; color: #334155; line-height: 1.6; margin-bottom: 18px; }
+  .modal-section-title { font-size: 13px; font-weight: 700; color: #0D2B55; margin: 14px 0 8px; }
+  .modal-list { list-style: none; display: flex; flex-direction: column; gap: 6px; }
+  .modal-list li { font-size: 13px; color: #334155; background: #F1F4F8; border-radius: 8px; padding: 8px 12px; }
+  .modal-steps { display: flex; flex-direction: column; gap: 10px; }
+  .modal-step { display: flex; gap: 12px; align-items: flex-start; }
+  .step-num { width: 24px; height: 24px; border-radius: 50%; background: #0D2B55; color: white; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+  .step-text { font-size: 13px; color: #334155; line-height: 1.5; }
+  .modal-info-row { display: flex; gap: 10px; margin-top: 16px; flex-wrap: wrap; }
+  .modal-info-chip { background: #E6F4F2; color: #0A7E6E; border-radius: 8px; padding: 6px 12px; font-size: 12px; font-weight: 600; }
+  .modal-actions { display: flex; gap: 10px; margin-top: 20px; }
+  .modal-btn-primary { flex: 1; padding: 13px; background: linear-gradient(135deg, #2E7D5E, #0A7E6E); color: white; border: none; border-radius: 12px; font-size: 14px; font-weight: 700; cursor: pointer; font-family: var(--font); }
+  .modal-btn-primary:disabled { background: #A0AABA; cursor: default; }
+  .modal-btn-secondary { flex: 1; padding: 13px; background: #F1F4F8; color: #0D2B55; border: 1.5px solid #E2E8F0; border-radius: 12px; font-size: 14px; font-weight: 600; cursor: pointer; font-family: var(--font); }
+  .app-stepper { display: flex; gap: 4px; margin-bottom: 20px; align-items: center; }
+  .app-step { display: flex; flex-direction: column; align-items: center; gap: 4px; flex: 1; }
+  .app-step-dot { width: 28px; height: 28px; border-radius: 50%; background: #E2E8F0; color: #64748B; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; transition: all 0.3s; }
+  .app-step.active .app-step-dot { background: #0D2B55; color: white; } .app-step.done .app-step-dot { background: #2E7D5E; color: white; }
+  .app-step-label { font-size: 9px; font-weight: 600; color: #64748B; text-align: center; }
+  .app-step.active .app-step-label { color: #0D2B55; }
+  .form-group { margin-bottom: 14px; display: flex; flex-direction: column; gap: 5px; }
+  .form-group label { font-size: 12px; font-weight: 600; color: #0D2B55; }
+  .form-group input, .form-group select, .form-group textarea { padding: 11px 14px; border-radius: 10px; border: 1.5px solid #E2E8F0; font-size: 13px; font-family: var(--font); color: #334155; background: #F1F4F8; outline: none; transition: border 0.2s; }
+  .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: #0A7E6E; background: white; }
+  .form-group textarea { resize: vertical; min-height: 70px; }
+  .doc-upload-item { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #E2E8F0; gap: 12px; }
+  .doc-upload-left { display: flex; align-items: center; gap: 10px; flex: 1; }
+  .doc-icon { font-size: 22px; } .doc-name { font-size: 13px; font-weight: 600; color: #0D2B55; } .doc-status { font-size: 11px; color: #64748B; margin-top: 2px; }
+  .doc-upload-btn { background: #0D2B55; color: white; border: none; border-radius: 8px; padding: 7px 14px; font-size: 12px; font-weight: 600; cursor: pointer; font-family: var(--font); flex-shrink: 0; transition: background 0.2s; }
+  .doc-upload-info { background: #E6F4F2; border-radius: 10px; padding: 10px 14px; font-size: 12px; color: #0A7E6E; margin-bottom: 14px; line-height: 1.5; }
+  .review-banner { background: #E8F5EE; color: #2E7D5E; border-radius: 10px; padding: 12px 16px; font-size: 13px; font-weight: 700; margin-bottom: 16px; }
+  .review-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #E2E8F0; font-size: 13px; color: #64748B; }
+  .review-row strong { color: #0D2B55; font-weight: 600; }
+  .review-disclaimer { font-size: 11px; color: #64748B; margin-top: 14px; line-height: 1.5; background: #F1F4F8; padding: 10px 12px; border-radius: 8px; }
+  .success-screen { text-align: center; padding: 10px 0; }
+  .success-icon { font-size: 56px; margin-bottom: 10px; } .success-title { font-size: 22px; font-weight: 700; color: #0D2B55; margin-bottom: 8px; }
+  .success-sub { font-size: 13px; color: #64748B; line-height: 1.6; margin-bottom: 12px; }
+  .success-ref { background: #E6F4F2; color: #0A7E6E; border-radius: 10px; padding: 10px 16px; font-size: 13px; margin-bottom: 16px; }
+  .success-timeline { text-align: left; display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }
+  .tl-item { font-size: 13px; color: #64748B; padding: 8px 12px; border-radius: 8px; background: #F1F4F8; }
+  .tl-item.done { color: #2E7D5E; background: #E8F5EE; font-weight: 600; } .tl-item.active { color: #0D2B55; background: #EBF4FF; font-weight: 600; }
+  .elig-result-title { font-size: 17px; font-weight: 700; color: #0D2B55; margin-bottom: 14px; }
+  .elig-result-card { border-radius: 12px; padding: 14px 16px; margin-bottom: 10px; border: 1.5px solid; }
+  .elig-result-card.green-r { border-color: #2E7D5E; background: #E8F5EE; }
+  .er-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+  .er-badge { border-radius: 8px; padding: 3px 10px; font-size: 11px; font-weight: 700; }
+  .er-badge.eligible { background: #2E7D5E; color: white; }
+  .er-amount { font-size: 16px; font-weight: 800; color: #2E7D5E; }
+  .er-name { font-size: 14px; font-weight: 700; color: #0D2B55; margin-bottom: 4px; }
+  .er-reason { font-size: 12px; color: #334155; margin-bottom: 10px; }
+  .er-apply-btn { width: 100%; padding: 9px; background: #2E7D5E; color: white; border: none; border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer; font-family: var(--font); }
+  .elig-total-box { background: #0D2B55; color: white; border-radius: 12px; padding: 14px 16px; font-size: 14px; text-align: center; margin-top: 12px; }
+  .sos-seq-item { background: rgba(255,255,255,0.12); border-radius: 10px; padding: 10px 14px; font-size: 13px; text-align: left; transition: all 0.4s; color: rgba(255,255,255,0.6); }
+  .sos-seq-item.done { background: rgba(255,255,255,0.25); color: white; font-weight: 600; }
+  .sos-result-card { background: rgba(255,255,255,0.15); border-radius: 12px; padding: 14px; margin-bottom: 10px; border: 1.5px solid rgba(255,255,255,0.25); text-align: left; }
+  .sos-result-label { font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.75); letter-spacing: 0.8px; margin-bottom: 4px; }
+  .sos-result-hospital { font-size: 18px; font-weight: 800; color: white; margin-bottom: 4px; }
+  .sos-result-detail { font-size: 12px; color: rgba(255,255,255,0.8); margin-bottom: 2px; }
+  .sos-call-now-btn { width: 100%; padding: 14px; background: white; color: #C62828; border: none; border-radius: 12px; font-size: 15px; font-weight: 800; cursor: pointer; margin-bottom: 10px; font-family: var(--font); }
+  .sos-cancel-btn { background: rgba(255,255,255,0.15); color: white; border: 1.5px solid rgba(255,255,255,0.3); border-radius: 10px; padding: 10px 28px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: var(--font); }
+  .call-modal { background: #0D2B55; color: white; border-radius: 24px 24px 0 0; width: 390px; padding: 40px 24px 48px; text-align: center; animation: slideUp 0.3s ease; }
+  .call-avatar { font-size: 64px; margin-bottom: 14px; } .call-name { font-size: 20px; font-weight: 700; margin-bottom: 6px; } .call-status { font-size: 14px; color: rgba(255,255,255,0.65); margin-bottom: 4px; }
+  .call-timer { font-size: 36px; font-weight: 800; margin-bottom: 32px; color: #7ECFC5; font-variant-numeric: tabular-nums; }
+  .call-actions { display: flex; align-items: center; justify-content: center; gap: 20px; }
+  .call-action-btn { background: rgba(255,255,255,0.12); border: none; color: white; padding: 10px 18px; border-radius: 12px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: var(--font); }
+  .call-end-btn { width: 64px; height: 64px; border-radius: 50%; background: #C62828; border: none; color: white; font-size: 26px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+  .call-end-btn::before { content: '📵'; }
+  #global-toast { display: none; }
+  .toast-visible { display: block; position: fixed; bottom: 120px; left: 50%; transform: translateX(-50%); background: rgba(13,43,85,0.95); color: white; padding: 12px 20px; border-radius: 24px; font-size: 13px; font-weight: 600; font-family: var(--font); z-index: 999999; white-space: nowrap; box-shadow: 0 4px 20px rgba(0,0,0,0.25); animation: fadeInOut 2.8s ease forwards; }
+  @keyframes fadeInOut { 0%{opacity:0;transform:translateX(-50%) translateY(10px)} 15%{opacity:1;transform:translateX(-50%) translateY(0)} 80%{opacity:1} 100%{opacity:0} }
+  @keyframes sosPulse { 0%,100%{background:rgba(183,28,28,0.97)} 50%{background:rgba(211,47,47,0.99)} }
+  @keyframes bounce { from{transform:scale(1)} to{transform:scale(1.1)} }
+  @keyframes slideUp { from{transform:translateY(60px);opacity:0} to{transform:translateY(0);opacity:1} }
+  ::-webkit-scrollbar { display: none; }
+
+  /* FLOATING AI CHAT BUTTON */
+  .ai-fab {
+    position: absolute;
+    bottom: 88px;
+    right: 18px;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--teal) 0%, var(--navy-mid) 100%);
+    color: white;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    box-shadow: 0 4px 18px rgba(10,126,110,0.45);
+    z-index: 50;
+    transition: transform 0.2s, box-shadow 0.2s;
+    animation: fabPulse 2.5s ease-in-out infinite;
+  }
+  .ai-fab:hover { transform: scale(1.1); box-shadow: 0 6px 24px rgba(10,126,110,0.6); }
+  .ai-fab:active { transform: scale(0.95); }
+  @keyframes fabPulse {
+    0%, 100% { box-shadow: 0 4px 18px rgba(10,126,110,0.45); }
+    50% { box-shadow: 0 4px 28px rgba(10,126,110,0.75); }
+  }
+</style>
+</head>
+<body>
+
+<div class="device">
+  <div class="status-bar">
+    <span class="time" id="clock">9:41</span>
+    <div class="status-icons"><span>●●●●</span><span>WiFi</span><span>🔋</span></div>
+  </div>
+
+  <!-- HOME -->
+  <div class="screen active" id="screen-home">
+    <div class="home-hero">
+      <div class="home-logo">
+        <div class="logo-mark">🎗️</div>
+        <div class="logo-text">Cancer<span>Saathi</span></div>
+      </div>
+      <div class="home-greeting">Namaste, Priya 👋</div>
+      <div class="home-title">Your trusted companion through every step</div>
+      <div class="home-subtitle">Guidance, support & resources — all in one place, in your language.</div>
+    </div>
+    <div class="home-body">
+      <div class="section-label">Quick Access</div>
+      <div class="feature-grid">
+        <div class="feature-card" onclick="goTo('screen-connect')">
+          <div class="card-icon green">🤝</div>
+          <div><div class="card-title">Survivor Connect</div><div class="card-sub">Talk to those who've been there</div></div>
+        </div>
+        <div class="feature-card" onclick="goTo('screen-navigator')">
+          <div class="card-icon teal">🗺️</div>
+          <div><div class="card-title">Patient Navigator</div><div class="card-sub">Your treatment journey, step by step</div></div>
+        </div>
+        <div class="feature-card" onclick="goTo('screen-doctor')">
+          <div class="card-icon blue">📋</div>
+          <div><div class="card-title">Doctor Visit Prep</div><div class="card-sub">Questions & symptoms ready</div></div>
+        </div>
+        <div class="feature-card" onclick="goTo('screen-financial')">
+          <div class="card-icon gold">💰</div>
+          <div><div class="card-title">Financial Aid</div><div class="card-sub">Schemes & support you qualify for</div></div>
+        </div>
+        <div class="feature-card sos" onclick="goTo('screen-sos')">
+          <div class="card-icon red">🆘</div>
+          <div class="sos-text"><div class="card-title">Emergency SOS</div><div class="card-sub">Quick call to doctors & loved ones</div></div>
+          <div class="sos-badge">URGENT</div>
+        </div>
+      </div>
+      <div class="section-label">Today's Tip</div>
+      <div class="tip-card">
+        <div class="tip-icon">💡</div>
+        <div>
+          <div class="tip-title">Before your next appointment</div>
+          <div class="tip-text">Write down any new symptoms you've noticed — even minor ones. Doctors can spot patterns faster when you track daily changes.</div>
+        </div>
+      </div>
+    </div>
+    <button class="ai-fab" onclick="goTo('screen-chat')" title="AI Care Advisor">🤖</button>
+    <div class="bottom-nav">
+      <button class="nav-item active" onclick="goTo('screen-home')"><span class="ni-icon">🏠</span><span class="ni-label" style="color:var(--teal)">Home</span></button>
+      <button class="nav-item" onclick="goTo('screen-navigator')"><span class="ni-icon">🗺️</span><span class="ni-label">Navigate</span></button>
+      <button class="nav-item" onclick="goTo('screen-financial')"><span class="ni-icon">💰</span><span class="ni-label">Aid</span></button>
+      <button class="nav-item" onclick="goTo('screen-sos')"><span class="ni-icon">🆘</span><span class="ni-label">SOS</span></button>
+    </div>
+  </div>
+
+  <!-- AI CHAT ADVISOR -->
+  <div class="screen" id="screen-chat">
+    <div class="chat-header">
+      <button class="nav-back" onclick="goTo('screen-home')">←</button>
+      <div class="chat-ai-avatar">🤖</div>
+      <div style="flex:1">
+        <div style="font-size:16px;font-weight:700;">AI Care Advisor</div>
+        <div style="font-size:11px;color:rgba(255,255,255,0.7);">Powered by Claude · Not medical advice</div>
+      </div>
+      <span style="font-size:10px;background:rgba(255,255,255,0.2);padding:4px 8px;border-radius:10px;color:white;font-weight:600;">LIVE</span>
+    </div>
+    <div class="chat-quick-btns">
+      <button class="quick-btn" onclick="sendQuick('What are common chemotherapy side effects?')">Chemo side effects</button>
+      <button class="quick-btn" onclick="sendQuick('How do I cope emotionally during cancer treatment?')">Emotional support</button>
+      <button class="quick-btn" onclick="sendQuick('What foods are good during chemotherapy?')">Nutrition tips</button>
+      <button class="quick-btn" onclick="sendQuick('What government schemes exist for cancer patients in India?')">Financial aid India</button>
+    </div>
+    <div class="chat-messages" id="chat-messages">
+      <div class="msg bot">
+        <div class="msg-bubble">Namaste Priya 🙏 I'm your AI Care Advisor. I can help you understand your cancer journey, prepare for doctor visits, find financial aid, and provide emotional support.<br><br>Please remember: I provide general guidance — always consult your oncologist for medical decisions.<br><br>What can I help you with today?</div>
+        <div class="msg-time">Just now</div>
+      </div>
+    </div>
+    <div class="chat-input-bar">
+      <input type="text" class="chat-input" id="chat-input" placeholder="Ask anything about your care..." onkeydown="if(event.key==='Enter')sendMessage()">
+      <button class="chat-send-btn" id="chat-send-btn" onclick="sendMessage()">➤</button>
+    </div>
+  </div>
+
+  <!-- PATIENT NAVIGATOR -->
+  <div class="screen" id="screen-navigator">
+    <div class="pn-header">
+      <div style="display:flex;align-items:center;gap:14px;margin-bottom:16px;">
+        <button class="nav-back" onclick="goTo('screen-home')">←</button>
+        <span style="font-size:17px;font-weight:700;flex:1;">Patient Navigator</span>
+        <span style="font-size:20px">🗺️</span>
+      </div>
+      <p>Track your cancer care journey. Know what's next.</p>
+      <div class="stage-selector">
+        <div class="stage-pill active" onclick="setStagePill(this)">Diagnosis</div>
+        <div class="stage-pill" onclick="setStagePill(this)">Treatment</div>
+        <div class="stage-pill" onclick="setStagePill(this)">Recovery</div>
+        <div class="stage-pill" onclick="setStagePill(this)">Survivorship</div>
+      </div>
+    </div>
+    <div class="pn-body">
+      <div class="section-label" style="margin-bottom:14px;">Your Journey</div>
+      <div class="journey-card done" onclick="showToast('✓ Initial consultation completed on March 10')">
+        <div class="jc-step done">✓</div>
+        <div><div class="jc-title">Initial Consultation</div><div class="jc-desc">Oncologist first visit. Medical history reviewed.</div><div class="jc-tag">Completed · March 10</div></div>
+      </div>
+      <div class="journey-card done" onclick="showToast('✓ Biopsy completed — Stage II diagnosed')">
+        <div class="jc-step done">✓</div>
+        <div><div class="jc-title">Biopsy & Pathology</div><div class="jc-desc">Tissue sample collected. Stage II diagnosed.</div><div class="jc-tag">Completed · March 18</div></div>
+      </div>
+      <div class="journey-card current" onclick="showToast('📋 MDT review scheduled this week')">
+        <div class="jc-step current">3</div>
+        <div><div class="jc-title">Treatment Planning</div><div class="jc-desc">MDT review scheduled. Chemo + radiation plan in progress.</div><div class="jc-tag current">In Progress · This Week</div></div>
+      </div>
+      <div class="journey-card" onclick="showToast('📅 Chemotherapy begins April 5 — 6 cycles planned')">
+        <div class="jc-step upcoming">4</div>
+        <div><div class="jc-title">Chemotherapy Begins</div><div class="jc-desc">First cycle starts. 6 cycles planned over 18 weeks.</div><div class="jc-tag" style="background:var(--gray-100);color:var(--gray-500)">Upcoming · April 5</div></div>
+      </div>
+      <div class="journey-card" onclick="showToast('🔬 Mid-treatment scan + blood work scheduled for June')">
+        <div class="jc-step upcoming">5</div>
+        <div><div class="jc-title">Mid-Treatment Review</div><div class="jc-desc">Response assessment imaging and blood work.</div><div class="jc-tag" style="background:var(--gray-100);color:var(--gray-500)">Upcoming · June</div></div>
+      </div>
+      <div class="section-label" style="margin: 20px 0 14px;">Quick Resources</div>
+      <div class="resource-row">
+        <div class="resource-chip" onclick="openResourceChat('Explain Stage II breast cancer in simple terms')"><div class="rc-icon">📖</div><div class="rc-title">Understanding Stage II</div><div class="rc-sub">Simplified guide</div></div>
+        <div class="resource-chip" onclick="openResourceChat('What are the common side effects of chemotherapy and how to manage them?')"><div class="rc-icon">💊</div><div class="rc-title">Chemo Side Effects</div><div class="rc-sub">What to expect</div></div>
+        <div class="resource-chip" onclick="openResourceChat('What should I eat during chemotherapy? Give me diet tips and wellness advice.')"><div class="rc-icon">🧘</div><div class="rc-title">Wellness During TX</div><div class="rc-sub">Diet & mindfulness</div></div>
+      </div>
+    </div>
+    <div class="bottom-nav">
+      <button class="nav-item" onclick="goTo('screen-home')"><span class="ni-icon">🏠</span><span class="ni-label">Home</span></button>
+      <button class="nav-item active" onclick="goTo('screen-navigator')"><span class="ni-icon">🗺️</span><span class="ni-label" style="color:var(--teal)">Navigate</span></button>
+      <button class="nav-item" onclick="goTo('screen-chat')"><span class="ni-icon">🤖</span><span class="ni-label">AI Advisor</span></button>
+      <button class="nav-item" onclick="goTo('screen-financial')"><span class="ni-icon">💰</span><span class="ni-label">Aid</span></button>
+      <button class="nav-item" onclick="goTo('screen-sos')"><span class="ni-icon">🆘</span><span class="ni-label">SOS</span></button>
+    </div>
+  </div>
+
+  <!-- SURVIVOR CONNECT -->
+  <div class="screen" id="screen-connect">
+    <div class="sc-header">
+      <div style="display:flex;align-items:center;gap:14px;margin-bottom:16px;">
+        <button class="nav-back" onclick="goTo('screen-home')">←</button>
+        <span style="font-size:17px;font-weight:700;flex:1;">Survivor Connect</span>
+        <span style="font-size:20px">🤝</span>
+      </div>
+      <p>You are not alone. Connect with survivors who understand your journey.</p>
+      <div class="sc-tabs">
+        <button class="sc-tab active" onclick="showTab('stories')">Stories</button>
+        <button class="sc-tab" onclick="showTab('groups')">Support Groups</button>
+        <button class="sc-tab" onclick="showTab('mentors')">Mentors</button>
+      </div>
+    </div>
+    <div class="sc-body" id="tab-stories">
+      <div class="survivor-card">
+        <div class="sc-top"><div class="survivor-avatar" style="background:#E8F5EE;">👩</div><div><div class="survivor-name">Anjali Sharma</div><div class="survivor-meta">Breast Cancer Survivor · 3 years in remission · Mumbai</div></div></div>
+        <div class="survivor-story">"Treatment was the hardest 8 months of my life. But with the right support, I got through. Today I mentor 12 patients through CancerSaathi."</div>
+        <div class="survivor-tags"><span class="stag">Stage II</span><span class="stag">Chemo + Radiation</span><span class="stag">Hindi / English</span></div>
+        <button class="sc-connect-btn" onclick="openSurvivorChat('Anjali Sharma','Breast Cancer Survivor')">💬 Connect with Anjali</button>
+      </div>
+      <div class="survivor-card">
+        <div class="sc-top"><div class="survivor-avatar" style="background:#EBF4FF;">👨</div><div><div class="survivor-name">Rajan Mehta</div><div class="survivor-meta">Colon Cancer Survivor · 5 years in remission · Delhi</div></div></div>
+        <div class="survivor-story">"Financial stress was as hard as the cancer itself. I want to help others navigate the aid landscape so money is one less worry."</div>
+        <div class="survivor-tags"><span class="stag">Stage III</span><span class="stag">Surgery</span><span class="stag">Financial Aid Expert</span></div>
+        <button class="sc-connect-btn" onclick="openSurvivorChat('Rajan Mehta','Colon Cancer Survivor')">💬 Connect with Rajan</button>
+      </div>
+      <div class="survivor-card">
+        <div class="sc-top"><div class="survivor-avatar" style="background:#FFF3E0;">👩‍🦱</div><div><div class="survivor-name">Meena Iyer</div><div class="survivor-meta">Ovarian Cancer Survivor · 2 years · Chennai</div></div></div>
+        <div class="survivor-story">"My doctor visits used to leave me confused and scared. Now I prep thoroughly and that changed everything."</div>
+        <div class="survivor-tags"><span class="stag">Immunotherapy</span><span class="stag">Tamil / English</span></div>
+        <button class="sc-connect-btn" onclick="openSurvivorChat('Meena Iyer','Ovarian Cancer Survivor')">💬 Connect with Meena</button>
+      </div>
+    </div>
+    <div class="sc-body" id="tab-groups" style="display:none;">
+      <div class="group-card"><div class="group-icon" style="background:#E8F5EE;">🌸</div><div><div class="group-name">Women's Cancer Circle</div><div class="group-desc">Weekly online meetings. Safe space for women patients and caregivers.</div><div class="group-members">👥 148 members · Meets every Sunday 7PM</div></div><button class="join-btn" onclick="showToast('✅ Joined Women\'s Cancer Circle!')">Join</button></div>
+      <div class="group-card"><div class="group-icon" style="background:#EBF4FF;">💪</div><div><div class="group-name">Young Adults with Cancer</div><div class="group-desc">For patients aged 18–40. Mental wellness focus.</div><div class="group-members">👥 92 members · Meets Wednesdays 8PM</div></div><button class="join-btn" onclick="showToast('✅ Joined Young Adults with Cancer!')">Join</button></div>
+      <div class="group-card"><div class="group-icon" style="background:#FFF3E0;">🧡</div><div><div class="group-name">Caregiver Support</div><div class="group-desc">For family members. Managing burnout & emotional load.</div><div class="group-members">👥 213 members · Daily chat + Friday calls</div></div><button class="join-btn" onclick="showToast('✅ Joined Caregiver Support!')">Join</button></div>
+    </div>
+    <div class="sc-body" id="tab-mentors" style="display:none;">
+      <div class="tip-card" style="margin-bottom:16px;"><div class="tip-icon">ℹ️</div><div><div class="tip-title">What is a Mentor?</div><div class="tip-text">Trained cancer survivors who offer 1-on-1 support. Not medical advice — just shared experience and empathy.</div></div></div>
+      <div class="survivor-card">
+        <div class="sc-top"><div class="survivor-avatar" style="background:#E8F5EE;">🧑‍⚕️</div><div><div class="survivor-name">Kavitha Reddy</div><div class="survivor-meta">Certified Peer Mentor · Hyderabad</div></div></div>
+        <div class="survivor-story">Specialises in helping newly diagnosed patients. Available in Telugu and Hindi. 4.9★ rating from 60 mentees.</div>
+        <button class="sc-connect-btn" onclick="showToast('📅 Booking session with Kavitha Reddy...')">📅 Book a Session</button>
+      </div>
+    </div>
+    <div class="bottom-nav">
+      <button class="nav-item" onclick="goTo('screen-home')"><span class="ni-icon">🏠</span><span class="ni-label">Home</span></button>
+      <button class="nav-item" onclick="goTo('screen-navigator')"><span class="ni-icon">🗺️</span><span class="ni-label">Navigate</span></button>
+      <button class="nav-item active" onclick="goTo('screen-connect')"><span class="ni-icon">🤝</span><span class="ni-label" style="color:var(--teal)">Connect</span></button>
+      <button class="nav-item" onclick="goTo('screen-financial')"><span class="ni-icon">💰</span><span class="ni-label">Aid</span></button>
+      <button class="nav-item" onclick="goTo('screen-sos')"><span class="ni-icon">🆘</span><span class="ni-label">SOS</span></button>
+    </div>
+  </div>
+
+  <!-- DOCTOR PREP -->
+  <div class="screen" id="screen-doctor">
+    <div class="dv-header">
+      <div style="display:flex;align-items:center;gap:14px;margin-bottom:16px;">
+        <button class="nav-back" onclick="goTo('screen-home')">←</button>
+        <span style="font-size:17px;font-weight:700;flex:1;">Doctor Visit Prep</span>
+        <span style="font-size:20px">📋</span>
+      </div>
+      <p>Get the most out of your appointment. Never forget what matters.</p>
+      <div class="appt-banner">
+        <span>📅</span>
+        <span>Next: Dr. Sharma · April 18, 10:30 AM</span>
+        <button class="appt-edit" onclick="showToast('📅 Appointment edit coming soon')">Edit</button>
+      </div>
+    </div>
+    <div class="dv-body">
+      <div class="prep-section">
+        <div class="prep-section-title"><span class="ps-icon">❓</span> Questions to Ask Your Doctor</div>
+        <div id="questions-list">
+          <div class="question-item" onclick="toggleCheck(this)"><div class="qi-check"></div><div class="qi-text">What does my Stage II diagnosis mean for my treatment options?</div></div>
+          <div class="question-item" onclick="toggleCheck(this)"><div class="qi-check checked">✓</div><div class="qi-text">How many chemotherapy cycles are planned and how long each?</div></div>
+          <div class="question-item" onclick="toggleCheck(this)"><div class="qi-check"></div><div class="qi-text">What are the most common side effects I should watch for?</div></div>
+          <div class="question-item" onclick="toggleCheck(this)"><div class="qi-check"></div><div class="qi-text">Can I continue working during treatment?</div></div>
+          <div class="question-item" onclick="toggleCheck(this)"><div class="qi-check checked">✓</div><div class="qi-text">Are there clinical trials I might be eligible for?</div></div>
+        </div>
+        <button class="add-question-btn" onclick="openAIQuestionGen()">🤖 AI: Generate more questions</button>
+      </div>
+      <div class="prep-section">
+        <div class="prep-section-title"><span class="ps-icon">🩺</span> Report Symptoms (tap to select)</div>
+        <div class="symptom-grid" id="symptom-grid">
+          <div class="symptom-chip selected" onclick="toggleSymptom(this)">✓ Fatigue</div>
+          <div class="symptom-chip" onclick="toggleSymptom(this)">🤢 Nausea</div>
+          <div class="symptom-chip selected" onclick="toggleSymptom(this)">✓ Appetite Loss</div>
+          <div class="symptom-chip" onclick="toggleSymptom(this)">😴 Sleep Issues</div>
+          <div class="symptom-chip" onclick="toggleSymptom(this)">🤕 Headache</div>
+          <div class="symptom-chip" onclick="toggleSymptom(this)">💊 Medication Pain</div>
+          <div class="symptom-chip" onclick="toggleSymptom(this)">😰 Anxiety</div>
+          <div class="symptom-chip" onclick="toggleSymptom(this)">🥵 Hot Flashes</div>
+        </div>
+        <div class="ai-suggestion" id="ai-symptom-insight">
+          <span class="ai-icon">🤖</span>
+          <div class="ai-text" id="ai-insight-text"><strong>AI Insight:</strong> Based on your selected symptoms, we suggest asking about anti-nausea medications and appetite stimulants as potential additions to your care plan.</div>
+        </div>
+        <button class="add-question-btn" style="margin-top:10px;" onclick="refreshSymptomInsight()">🔄 Get Updated AI Insight</button>
+      </div>
+      <button class="generate-btn" onclick="generateVisitSummary()">📄 Generate Visit Summary (AI)</button>
+    </div>
+    <div class="bottom-nav">
+      <button class="nav-item" onclick="goTo('screen-home')"><span class="ni-icon">🏠</span><span class="ni-label">Home</span></button>
+      <button class="nav-item" onclick="goTo('screen-navigator')"><span class="ni-icon">🗺️</span><span class="ni-label">Navigate</span></button>
+      <button class="nav-item" onclick="goTo('screen-chat')"><span class="ni-icon">🤖</span><span class="ni-label">AI Advisor</span></button>
+      <button class="nav-item" onclick="goTo('screen-financial')"><span class="ni-icon">💰</span><span class="ni-label">Aid</span></button>
+      <button class="nav-item" onclick="goTo('screen-sos')"><span class="ni-icon">🆘</span><span class="ni-label">SOS</span></button>
+    </div>
+  </div>
+
+  <!-- FINANCIAL AID -->
+  <div class="screen" id="screen-financial">
+    <div class="fa-header">
+      <div style="display:flex;align-items:center;gap:14px;margin-bottom:16px;">
+        <button class="nav-back" onclick="goTo('screen-home')">←</button>
+        <span style="font-size:17px;font-weight:700;flex:1;">Financial Aid Finder</span>
+        <span style="font-size:20px">💰</span>
+      </div>
+      <p>Government schemes, NGO support & insurance help — matched to your profile.</p>
+      <div class="fa-stats">
+        <div class="fa-stat"><div class="fa-stat-num">12</div><div class="fa-stat-label">Schemes Found</div></div>
+        <div class="fa-stat"><div class="fa-stat-num">₹3.2L</div><div class="fa-stat-label">Potential Aid</div></div>
+        <div class="fa-stat"><div class="fa-stat-num">4</div><div class="fa-stat-label">You Qualify</div></div>
+      </div>
+    </div>
+    <div class="fa-body">
+      <button class="elig-checker-btn" id="eligibility-checker-btn">🔍 Check My Eligibility — Find All Schemes You Qualify For</button>
+      <div class="filter-row">
+        <button class="filter-chip active" onclick="filterChip(this,'All')">All</button>
+        <button class="filter-chip" onclick="filterChip(this,'Government')">Government</button>
+        <button class="filter-chip" onclick="filterChip(this,'NGO')">NGO</button>
+        <button class="filter-chip" onclick="filterChip(this,'Insurance')">Insurance</button>
+        <button class="filter-chip" onclick="filterChip(this,'Free Treatment')">Free Treatment</button>
+      </div>
+      <div class="aid-card" data-cat="Government">
+        <div class="aid-top"><div><div class="aid-org">Government of India</div><div class="aid-name">Ayushman Bharat – PMJAY</div></div><div class="aid-badge">✓ Eligible</div></div>
+        <div class="aid-desc">Covers up to ₹5 lakh per year for hospitalisation. Includes cancer treatment, chemotherapy, surgery and follow-ups at empanelled hospitals.</div>
+        <div class="aid-meta"><div class="aid-meta-item">🏥 1,400+ Hospitals</div><div class="aid-meta-item">💵 Up to ₹5,00,000</div><div class="aid-meta-item">📄 Aadhaar Required</div></div>
+        <button class="apply-btn" onclick="openAidModal(0)">Apply Now →</button>
+      </div>
+      <div class="aid-card" data-cat="NGO">
+        <div class="aid-top"><div><div class="aid-org">NGO — Cancer Aid Society</div><div class="aid-name">Free Chemotherapy Support Grant</div></div><div class="aid-badge">✓ Eligible</div></div>
+        <div class="aid-desc">Provides direct financial grants for chemotherapy drugs and supportive medications for BPL and low-income patients.</div>
+        <div class="aid-meta"><div class="aid-meta-item">💊 Chemo Drugs</div><div class="aid-meta-item">💵 Up to ₹80,000</div><div class="aid-meta-item">⚡ 2-week approval</div></div>
+        <button class="apply-btn" onclick="openAidModal(1)">Apply Now →</button>
+      </div>
+      <div class="aid-card" data-cat="Government">
+        <div class="aid-top"><div><div class="aid-org">State Government · Maharashtra</div><div class="aid-name">Mahatma Jyotiba Phule Jan Arogya Yojana</div></div><div class="aid-badge gold-badge">Check Eligibility</div></div>
+        <div class="aid-desc">State scheme covering cancer surgeries and advanced diagnostic tests at government and network hospitals in Maharashtra.</div>
+        <div class="aid-meta"><div class="aid-meta-item">🗂️ Maharashtra Only</div><div class="aid-meta-item">💵 Up to ₹1.5L</div></div>
+        <button class="apply-btn" onclick="openAidModal(2)">Check & Apply →</button>
+      </div>
+      <div class="aid-card" data-cat="Free Treatment">
+        <div class="aid-top"><div><div class="aid-org">Central Government</div><div class="aid-name">Tata Memorial Hospital – Free Treatment</div></div><div class="aid-badge">✓ Eligible</div></div>
+        <div class="aid-desc">BPL patients receive free or subsidized treatment at Tata Memorial Hospital including surgery, radiation, and chemotherapy.</div>
+        <div class="aid-meta"><div class="aid-meta-item">🏥 Mumbai Only</div><div class="aid-meta-item">💵 Up to ₹3,00,000</div></div>
+        <button class="apply-btn" onclick="openAidModal(3)">Apply Now →</button>
+      </div>
+    </div>
+    <div class="bottom-nav">
+      <button class="nav-item" onclick="goTo('screen-home')"><span class="ni-icon">🏠</span><span class="ni-label">Home</span></button>
+      <button class="nav-item" onclick="goTo('screen-navigator')"><span class="ni-icon">🗺️</span><span class="ni-label">Navigate</span></button>
+      <button class="nav-item" onclick="goTo('screen-chat')"><span class="ni-icon">🤖</span><span class="ni-label">AI Advisor</span></button>
+      <button class="nav-item active" onclick="goTo('screen-financial')"><span class="ni-icon">💰</span><span class="ni-label" style="color:var(--teal)">Aid</span></button>
+      <button class="nav-item" onclick="goTo('screen-sos')"><span class="ni-icon">🆘</span><span class="ni-label">SOS</span></button>
+    </div>
+  </div>
+
+  <!-- SOS -->
+  <div class="screen" id="screen-sos">
+    <div class="sos-nav">
+      <button class="nav-back" style="background:rgba(255,255,255,0.2);" onclick="goTo('screen-home')">←</button>
+      <span style="font-size:17px;font-weight:700;flex:1;">Emergency SOS</span>
+      <span style="font-size:20px">🆘</span>
+    </div>
+    <div class="sos-body">
+      <div class="sos-hero">
+        <div class="sos-pulse-ring">
+          <button class="sos-main-btn" id="sos-main-btn">
+            <span class="sos-icon">🆘</span><span>CALL</span><span>SOS</span>
+          </button>
+        </div>
+        <div class="sos-hero-title">Hold for Emergency Call</div>
+        <div class="sos-hero-sub">Tap & hold for 3 seconds to alert your emergency contacts and call your oncology helpline.</div>
+      </div>
+      <div class="sos-section" style="margin-top:20px;">
+        <div class="sos-section-title">My Emergency Contacts</div>
+        <div id="contacts-container">
+          <div class="contact-card"><div class="contact-avatar" style="background:#E8F5EE;">👩‍⚕️</div><div><div class="contact-name">Dr. Priya Sharma</div><div class="contact-role">Oncologist · Tata Memorial Hospital</div></div><div class="contact-actions"><button class="contact-btn call" data-name="Dr. Priya Sharma">📞</button><button class="contact-btn msg" data-name="Dr. Priya Sharma">💬</button></div></div>
+          <div class="contact-card"><div class="contact-avatar" style="background:#EBF4FF;">👨‍👩‍👧</div><div><div class="contact-name">Rahul (Husband)</div><div class="contact-role">Primary Caregiver</div></div><div class="contact-actions"><button class="contact-btn call" data-name="Rahul">📞</button><button class="contact-btn msg" data-name="Rahul">💬</button></div></div>
+          <div class="contact-card"><div class="contact-avatar" style="background:#FFF3E0;">👩</div><div><div class="contact-name">Sunita (Sister)</div><div class="contact-role">Secondary Contact</div></div><div class="contact-actions"><button class="contact-btn call" data-name="Sunita">📞</button><button class="contact-btn msg" data-name="Sunita">💬</button></div></div>
+        </div>
+        <div class="add-contact-row" id="add-contact-btn"><div class="add-contact-icon">＋</div><div class="add-contact-label">Add Emergency Contact</div></div>
+      </div>
+      <div class="sos-section" style="margin-top:20px;">
+        <div class="sos-section-title">Cancer Helplines</div>
+        <div class="helpline-card"><div class="helpline-icon">🏥</div><div><div class="helpline-name">National Cancer Helpline</div><div class="helpline-num">1800-180-4104</div><div class="helpline-sub">Free · 24/7 · Hindi & English</div></div><button class="helpline-call-btn" data-name="National Cancer Helpline 1800-180-4104">Call</button></div>
+        <div class="helpline-card"><div class="helpline-icon">💛</div><div><div class="helpline-name">iCall (Mental Health)</div><div class="helpline-num">9152987821</div><div class="helpline-sub">Free counselling · Mon–Sat</div></div><button class="helpline-call-btn" data-name="iCall 9152987821">Call</button></div>
+      </div>
+      <div class="sos-section" style="margin-top:20px; padding-bottom:20px;">
+        <div class="sos-section-title">Nearest Hospital</div>
+        <div class="location-card" onclick="showToast('🗺️ Opening directions to Tata Memorial Hospital...')"><div class="lc-icon">📍</div><div><div class="lc-title">Tata Memorial Hospital</div><div class="lc-sub">2.3 km away · Parel, Mumbai · 24/7 Emergency</div></div><div class="lc-arrow">→</div></div>
+      </div>
+    </div>
+    <div class="bottom-nav">
+      <button class="nav-item" onclick="goTo('screen-home')"><span class="ni-icon">🏠</span><span class="ni-label">Home</span></button>
+      <button class="nav-item" onclick="goTo('screen-navigator')"><span class="ni-icon">🗺️</span><span class="ni-label">Navigate</span></button>
+      <button class="nav-item" onclick="goTo('screen-chat')"><span class="ni-icon">🤖</span><span class="ni-label">AI Advisor</span></button>
+      <button class="nav-item" onclick="goTo('screen-financial')"><span class="ni-icon">💰</span><span class="ni-label">Aid</span></button>
+      <button class="nav-item active" onclick="goTo('screen-sos')"><span class="ni-icon">🆘</span><span class="ni-label" style="color:#C62828">SOS</span></button>
+    </div>
+  </div>
+</div>
+
+<!-- PROTO NAV -->
+<div class="proto-label">CancerSaathi — Full Working App</div>
+<div class="screen-nav-pills">
+  <button class="snp active" onclick="goTo('screen-home')">🏠 Home</button>
+  <button class="snp" onclick="goTo('screen-navigator')">🗺️ Navigator</button>
+  <button class="snp" onclick="goTo('screen-connect')">🤝 Connect</button>
+  <button class="snp" onclick="goTo('screen-doctor')">📋 Doctor Prep</button>
+  <button class="snp" onclick="goTo('screen-financial')">💰 Financial</button>
+  <button class="snp" onclick="goTo('screen-sos')">🆘 SOS</button>
+  <button class="snp" onclick="goTo('screen-chat')">🤖 AI Advisor</button>
+</div>
+
+<!-- MODALS -->
+<div id="aid-modal-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:9999;align-items:flex-end;justify-content:center;backdrop-filter:blur(2px);">
+  <div class="modal-sheet"><button class="modal-close-btn" onclick="closeAidModal()">✕</button><div id="aid-modal-body" class="modal-body-scroll"></div></div>
+</div>
+
+<div id="elig-modal-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:9999;align-items:flex-end;justify-content:center;backdrop-filter:blur(2px);" onclick="if(event.target===this)closeEligModal()">
+  <div class="modal-sheet">
+    <button class="modal-close-btn" onclick="closeEligModal()">✕</button>
+    <div class="modal-body-scroll">
+      <div style="font-size:28px;text-align:center;margin-bottom:8px;">🔍</div>
+      <div class="modal-title" style="text-align:center;">Eligibility Checker</div>
+      <div class="modal-desc" style="text-align:center;margin-bottom:20px;">Answer 4 quick questions to find all schemes you qualify for.</div>
+      <div id="elig-form-section">
+        <div class="form-group"><label>Annual Family Income</label><select id="elig-income"><option value="below1">Below ₹1,00,000</option><option value="1to2.5">₹1L – ₹2.5L</option><option value="2.5to5">₹2.5L – ₹5L</option><option value="above5">Above ₹5L</option></select></div>
+        <div class="form-group"><label>State of Residence</label><select id="elig-state"><option value="maharashtra">Maharashtra</option><option value="delhi">Delhi</option><option value="karnataka">Karnataka</option><option value="other">Other</option></select></div>
+        <div class="form-group"><label>Cancer Stage</label><select id="elig-stage"><option value="I">Stage I</option><option value="II" selected>Stage II</option><option value="III">Stage III</option><option value="IV">Stage IV</option></select></div>
+        <div class="form-group"><label>Ration Card Type</label><select id="elig-card"><option value="bpl">BPL (Yellow)</option><option value="apl">APL (White)</option><option value="aay">Antyodaya (AAY)</option><option value="none">No Ration Card</option></select></div>
+        <button class="modal-btn-primary" style="width:100%;margin-top:8px;" onclick="runEligibilityCheck()">🔍 Check My Eligibility</button>
+      </div>
+      <div id="elig-result-section" style="display:none;"></div>
+    </div>
+  </div>
+</div>
+
+<div id="visit-summary-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:9999;align-items:flex-end;justify-content:center;backdrop-filter:blur(2px);">
+  <div class="modal-sheet"><button class="modal-close-btn" onclick="document.getElementById('visit-summary-modal').style.display='none'">✕</button><div id="visit-summary-body" class="modal-body-scroll"></div></div>
+</div>
+
+<div id="add-contact-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:9999;align-items:flex-end;justify-content:center;" onclick="if(event.target===this)closeAddContactModal()">
+  <div class="modal-sheet">
+    <button class="modal-close-btn" onclick="closeAddContactModal()">✕</button>
+    <div class="modal-body-scroll">
+      <div style="font-size:26px;text-align:center;margin-bottom:8px;">👤</div>
+      <div class="modal-title" style="text-align:center;margin-bottom:16px;">Add Emergency Contact</div>
+      <div class="form-group"><label>Full Name</label><input id="new-contact-name" type="text" placeholder="e.g. Anita (Daughter)"></div>
+      <div class="form-group"><label>Phone Number</label><input id="new-contact-phone" type="tel" placeholder="+91 XXXXXXXXXX"></div>
+      <div class="form-group"><label>Relationship / Role</label><input id="new-contact-role" type="text" placeholder="e.g. Daughter, Family Doctor"></div>
+      <div class="modal-actions">
+        <button class="modal-btn-secondary" onclick="closeAddContactModal()">Cancel</button>
+        <button class="modal-btn-primary" onclick="saveContact()">Save Contact</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="survivor-chat-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:9999;align-items:flex-end;justify-content:center;">
+  <div class="modal-sheet" style="max-height:85vh;">
+    <button class="modal-close-btn" onclick="document.getElementById('survivor-chat-modal').style.display='none'">✕</button>
+    <div style="padding:16px 20px 10px;border-bottom:1px solid #E2E8F0;">
+      <div id="survivor-chat-header" style="font-size:16px;font-weight:700;color:#0D2B55;"></div>
+      <div style="font-size:12px;color:#64748B;">AI simulating survivor perspective · Not real medical advice</div>
+    </div>
+    <div id="survivor-chat-messages" style="flex:1;padding:14px 16px;display:flex;flex-direction:column;gap:10px;overflow-y:auto;max-height:42vh;"></div>
+    <div style="padding:10px 14px;display:flex;gap:10px;align-items:center;border-top:1px solid #E2E8F0;">
+      <input type="text" id="survivor-chat-input" class="chat-input" placeholder="Ask about their experience..." onkeydown="if(event.key==='Enter')sendSurvivorMessage()">
+      <button class="chat-send-btn" onclick="sendSurvivorMessage()">➤</button>
+    </div>
+  </div>
+</div>
+
+<div id="sos-active-overlay" style="display:none;position:fixed;inset:0;background:rgba(183,28,28,0.97);z-index:99999;align-items:center;justify-content:center;animation:sosPulse 2s ease-in-out infinite;">
+  <div style="width:330px;text-align:center;color:white;padding:20px;">
+    <div style="font-size:56px;margin-bottom:10px;animation:bounce 0.8s infinite alternate;">🚨</div>
+    <div style="font-size:26px;font-weight:800;margin-bottom:4px;">SOS Activated</div>
+    <div style="font-size:13px;color:rgba(255,255,255,0.8);margin-bottom:20px;line-height:1.5;">Contacting emergency services & your family now</div>
+    <div id="sos-sequence" style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px;"></div>
+    <div id="sos-result" style="display:none;">
+      <div class="sos-result-card"><div class="sos-result-label">🏥 Nearest Cancer Hospital</div><div class="sos-result-hospital">Tata Memorial Hospital</div><div class="sos-result-detail">2.3 km · Parel, Mumbai · ETA ~8 min</div><div class="sos-result-detail">ICU Available · Oncology Emergency 24/7</div></div>
+      <div class="sos-result-card" style="background:rgba(46,125,94,0.3);border-color:rgba(46,125,94,0.6);"><div class="sos-result-label">📱 SMS Sent to 2 contacts</div><div style="font-size:12px;color:rgba(255,255,255,0.85);margin-top:4px;">"Priya has activated SOS. Nearest hospital: Tata Memorial (2.3km). ETA 8 min. Please respond."</div></div>
+      <button class="sos-call-now-btn" onclick="showCallModal('Tata Memorial Hospital Emergency')">📞 Call Hospital Now</button>
+    </div>
+    <button class="sos-cancel-btn" onclick="closeSosOverlay()">✕ Cancel SOS</button>
+  </div>
+</div>
+
+<div id="call-modal-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:99999;align-items:flex-end;justify-content:center;">
+  <div class="call-modal">
+    <div class="call-avatar">📞</div>
+    <div class="call-name" id="call-modal-name">Contact</div>
+    <div class="call-status">Connected</div>
+    <div class="call-timer" id="call-timer">00:00</div>
+    <div class="call-actions">
+      <button class="call-action-btn">🔇 Mute</button>
+      <button class="call-end-btn" onclick="endCall()"></button>
+      <button class="call-action-btn">🔊 Speaker</button>
+    </div>
+  </div>
+</div>
+
+<div id="global-toast"></div>
+
+<script>
+// ── CLOCK ──
+function updateClock() {
+  var now = new Date();
+  var h = now.getHours(), m = now.getMinutes();
+  document.getElementById('clock').textContent = h + ':' + (m < 10 ? '0' : '') + m;
+}
+updateClock(); setInterval(updateClock, 30000);
+
+// ── NAV ──
+function goTo(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  var target = document.getElementById(id);
+  if (target) { target.classList.add('active'); target.scrollTop = 0; }
+  document.querySelectorAll('.snp').forEach(b => {
+    b.classList.toggle('active', b.getAttribute('onclick') && b.getAttribute('onclick').includes(id));
+  });
+}
+
+function setStagePill(el) {
+  document.querySelectorAll('.stage-pill').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+}
+
+function showTab(tab) {
+  ['stories','groups','mentors'].forEach(t => {
+    var el = document.getElementById('tab-'+t);
+    if (el) el.style.display = t === tab ? 'block' : 'none';
+  });
+  document.querySelectorAll('.sc-tab').forEach((t,i) => {
+    t.classList.toggle('active', ['stories','groups','mentors'][i] === tab);
+  });
+}
+
+function toggleCheck(el) {
+  var check = el.querySelector('.qi-check');
+  check.classList.toggle('checked');
+  check.textContent = check.classList.contains('checked') ? '✓' : '';
+}
+
+function toggleSymptom(el) {
+  el.classList.toggle('selected');
+  var base = el.textContent.replace('✓ ','').replace(/^[^\s]+ /,'').trim();
+  if (el.classList.contains('selected')) {
+    el.innerHTML = '✓ ' + el.textContent.replace('✓ ','');
+  } else {
+    el.textContent = el.textContent.replace('✓ ','');
+  }
+}
+
+function filterChip(el, cat) {
+  document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  document.querySelectorAll('.aid-card').forEach(card => {
+    card.style.display = (cat === 'All' || card.dataset.cat === cat) ? '' : 'none';
+  });
+}
+
+// ── TOAST ──
+function showToast(msg) {
+  var t = document.getElementById('global-toast');
+  t.textContent = msg; t.className = 'toast-visible';
+  clearTimeout(t._t);
+  t._t = setTimeout(() => { t.className = ''; }, 2800);
+}
+
+// ── AI API CALL ──
+async function callClaude(messages, systemPrompt) {
+  var sysMsgs = systemPrompt ? [{ role: 'user', content: systemPrompt }, { role: 'assistant', content: 'Understood. I will follow these guidelines.' }] : [];
+  var payload = {
+    model: 'claude-sonnet-4-20250514',
+    max_tokens: 1000,
+    system: systemPrompt || 'You are CancerSaathi AI Care Advisor, a compassionate assistant for cancer patients in India. Be warm, simple, supportive. Always remind users to consult their doctor for medical decisions. Keep responses concise and practical. Use simple English mixed with common Hindi terms where appropriate.',
+    messages: messages
+  };
+  var resp = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  });
+  var data = await resp.json();
+  return data.content && data.content[0] ? data.content[0].text : 'I am here to help. Please try again.';
+}
+
+// ── AI CHAT ──
+var chatHistory = [];
+
+function addChatMessage(role, text, container) {
+  var id = container || 'chat-messages';
+  var msgs = document.getElementById(id);
+  var now = new Date();
+  var time = now.getHours() + ':' + (now.getMinutes() < 10 ? '0' : '') + now.getMinutes();
+  var div = document.createElement('div');
+  div.className = 'msg ' + role;
+  div.innerHTML = '<div class="msg-bubble">' + text.replace(/\n/g,'<br>') + '</div><div class="msg-time">' + time + '</div>';
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+  return div;
+}
+
+function showTyping(container) {
+  var id = container || 'chat-messages';
+  var msgs = document.getElementById(id);
+  var div = document.createElement('div');
+  div.className = 'msg bot';
+  div.id = 'typing-indicator-' + id;
+  div.innerHTML = '<div class="typing-indicator"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>';
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function removeTyping(container) {
+  var id = container || 'chat-messages';
+  var el = document.getElementById('typing-indicator-' + id);
+  if (el) el.remove();
+}
+
+async function sendMessage() {
+  var input = document.getElementById('chat-input');
+  var text = input.value.trim();
+  if (!text) return;
+  input.value = '';
+  document.getElementById('chat-send-btn').disabled = true;
+  addChatMessage('user', text);
+  chatHistory.push({ role: 'user', content: text });
+  showTyping();
+  try {
+    var reply = await callClaude(chatHistory);
+    removeTyping();
+    chatHistory.push({ role: 'assistant', content: reply });
+    addChatMessage('bot', reply);
+  } catch(e) {
+    removeTyping();
+    addChatMessage('bot', 'Sorry, I had trouble connecting. Please check your internet and try again.');
+  }
+  document.getElementById('chat-send-btn').disabled = false;
+  document.getElementById('chat-input').focus();
+}
+
+function sendQuick(text) {
+  document.getElementById('chat-input').value = text;
+  goTo('screen-chat');
+  setTimeout(sendMessage, 200);
+}
+
+function openResourceChat(text) {
+  sendQuick(text);
+}
+
+// ── SURVIVOR CHAT ──
+var survivorHistory = [];
+var survivorContext = '';
+
+function openSurvivorChat(name, role) {
+  survivorHistory = [];
+  survivorContext = name + ' is a ' + role + ' and peer mentor on CancerSaathi. Respond as ' + name + ', sharing your personal cancer journey experience with warmth and empathy. You are NOT a doctor. Share practical emotional support and personal experiences. Keep responses conversational and under 100 words.';
+  document.getElementById('survivor-chat-header').textContent = '💬 Chat with ' + name;
+  var msgs = document.getElementById('survivor-chat-messages');
+  msgs.innerHTML = '';
+  document.getElementById('survivor-chat-modal').style.display = 'flex';
+  var intro = "Namaste! I'm " + name + ". It's so good to connect with you. I know this journey can feel overwhelming — I've been there. What would you like to talk about?";
+  survivorHistory.push({ role: 'assistant', content: intro });
+  addChatMessage('bot', intro, 'survivor-chat-messages');
+}
+
+async function sendSurvivorMessage() {
+  var input = document.getElementById('survivor-chat-input');
+  var text = input.value.trim();
+  if (!text) return;
+  input.value = '';
+  addChatMessage('user', text, 'survivor-chat-messages');
+  survivorHistory.push({ role: 'user', content: text });
+  showTyping('survivor-chat-messages');
+  try {
+    var reply = await callClaude(survivorHistory, survivorContext);
+    removeTyping('survivor-chat-messages');
+    survivorHistory.push({ role: 'assistant', content: reply });
+    addChatMessage('bot', reply, 'survivor-chat-messages');
+  } catch(e) {
+    removeTyping('survivor-chat-messages');
+    addChatMessage('bot', 'So sorry, having trouble connecting right now.', 'survivor-chat-messages');
+  }
+}
+
+// ── DOCTOR PREP AI ──
+async function openAIQuestionGen() {
+  var symptoms = [];
+  document.querySelectorAll('.symptom-chip.selected').forEach(c => {
+    symptoms.push(c.textContent.replace('✓ ','').trim());
+  });
+  showToast('🤖 Generating AI questions...');
+  try {
+    var prompt = 'I am a breast cancer patient at Stage II, currently in treatment planning. My current symptoms include: ' + (symptoms.join(', ') || 'fatigue, appetite loss') + '. Generate 3 important questions I should ask my oncologist at my next appointment. Return as a plain numbered list, no extra explanation.';
+    var reply = await callClaude([{ role: 'user', content: prompt }]);
+    var lines = reply.split('\n').filter(l => l.trim() && l.match(/^\d/));
+    var list = document.getElementById('questions-list');
+    lines.forEach(line => {
+      var text = line.replace(/^\d+\.\s*/,'').trim();
+      if (!text) return;
+      var div = document.createElement('div');
+      div.className = 'question-item'; div.onclick = function() { toggleCheck(this); };
+      div.innerHTML = '<div class="qi-check"></div><div class="qi-text">🤖 ' + text + '</div>';
+      list.appendChild(div);
+    });
+    showToast('✅ ' + lines.length + ' AI questions added!');
+  } catch(e) { showToast('❌ Could not generate questions. Try again.'); }
+}
+
+async function refreshSymptomInsight() {
+  var symptoms = [];
+  document.querySelectorAll('.symptom-chip.selected').forEach(c => symptoms.push(c.textContent.replace('✓ ','').trim()));
+  if (!symptoms.length) { showToast('⚠️ Select at least one symptom first'); return; }
+  var insightEl = document.getElementById('ai-insight-text');
+  insightEl.className = 'ai-text loading'; insightEl.textContent = 'Generating AI insight...';
+  try {
+    var prompt = 'A Stage II breast cancer patient reports these symptoms: ' + symptoms.join(', ') + '. In 2-3 sentences, give a compassionate practical insight about these symptoms and 1-2 questions to raise with their oncologist. Be brief and supportive.';
+    var reply = await callClaude([{ role: 'user', content: prompt }]);
+    insightEl.className = 'ai-text'; insightEl.innerHTML = '<strong>AI Insight:</strong> ' + reply;
+  } catch(e) { insightEl.className = 'ai-text'; insightEl.innerHTML = '<strong>AI Insight:</strong> Could not load insight. Please try again.'; }
+}
+
+async function generateVisitSummary() {
+  var symptoms = [];
+  document.querySelectorAll('.symptom-chip.selected').forEach(c => symptoms.push(c.textContent.replace('✓ ','').trim()));
+  var questions = [];
+  document.querySelectorAll('.question-item .qi-check.checked').forEach(c => {
+    questions.push(c.parentElement.querySelector('.qi-text').textContent.replace('🤖 ','').trim());
+  });
+  var modal = document.getElementById('visit-summary-modal');
+  var body = document.getElementById('visit-summary-body');
+  body.innerHTML = '<div style="text-align:center;padding:30px;"><div style="font-size:32px;margin-bottom:10px;">⏳</div><div style="font-size:16px;font-weight:700;color:#0D2B55;">Generating AI Summary...</div></div>';
+  modal.style.display = 'flex';
+  try {
+    var prompt = 'Create a concise doctor visit summary for a breast cancer patient (Stage II, Priya Mehta, next visit April 18 with Dr. Sharma at Tata Memorial).\n\nSymptoms to report: ' + (symptoms.join(', ') || 'None selected') + '\n\nPriority questions checked: ' + (questions.join('; ') || 'None checked') + '\n\nFormat as a friendly summary with: 1) Patient Name & Date 2) Current Status 3) Symptoms to Discuss 4) Key Questions 5) Notes for Doctor. Keep it concise and clear.';
+    var reply = await callClaude([{ role: 'user', content: prompt }]);
+    body.innerHTML = '<div style="font-size:20px;text-align:center;margin-bottom:12px;">📄</div><div style="font-size:17px;font-weight:700;color:#0D2B55;margin-bottom:16px;text-align:center;">Your Visit Summary</div><div style="font-size:13px;color:#334155;line-height:1.7;white-space:pre-wrap;">' + reply + '</div><div style="margin-top:20px;display:flex;gap:10px;"><button class="modal-btn-secondary" onclick="document.getElementById(\'visit-summary-modal\').style.display=\'none\'">Close</button><button class="modal-btn-primary" onclick="showToast(\'📤 Summary shared with Dr. Sharma!\');document.getElementById(\'visit-summary-modal\').style.display=\'none\'">Share with Doctor</button></div>';
+  } catch(e) {
+    body.innerHTML = '<div class="modal-title">Error</div><p style="font-size:13px;color:#64748B;">Could not generate summary. Please try again.</p><button class="modal-btn-secondary" style="width:100%;margin-top:16px;" onclick="document.getElementById(\'visit-summary-modal\').style.display=\'none\'">Close</button>';
+  }
+}
+
+// ── FINANCIAL AID ──
+var aidData = [
+  { org:'Government of India', name:'Ayushman Bharat – PMJAY', desc:'Covers up to ₹5 lakh per year for hospitalisation. Includes cancer treatment, chemotherapy, surgery and follow-ups at empanelled hospitals.', badge:'eligible', category:'Government', amount:'₹5,00,000', docs:['Aadhaar Card','Ration Card (BPL)','Income Certificate','Doctor Prescription'], steps:['Check eligibility on PM-JAY portal','Visit nearest empanelled hospital','Show Aadhaar + BPL card','Hospital verifies & processes claim'], website:'https://pmjay.gov.in', phone:'14555', processingTime:'3-5 working days' },
+  { org:'NGO — Cancer Aid Society', name:'Free Chemotherapy Support Grant', desc:'Provides direct financial grants for chemotherapy drugs and supportive medications for BPL and low-income patients.', badge:'eligible', category:'NGO', amount:'₹80,000', docs:['Aadhaar Card','Oncologist Letter','Income Proof','Bank Account Details'], steps:['Fill online application form','Upload medical documents','Case review by committee','Grant disbursed to account'], website:'https://canceraidsociety.org', phone:'1800-180-1104', processingTime:'2 weeks' },
+  { org:'State Government · Maharashtra', name:'Mahatma Jyotiba Phule Jan Arogya Yojana', desc:'State scheme covering cancer surgeries and advanced diagnostic tests at government and network hospitals in Maharashtra.', badge:'check', category:'Government', amount:'₹1,50,000', docs:['Maharashtra Domicile Proof','Aadhaar Card','Yellow/Orange Ration Card','Hospital Referral Letter'], steps:['Visit government hospital in Maharashtra','Show domicile + ration card','Medical officer approves','Treatment covered at network hospital'], website:'https://www.jeevandayee.gov.in', phone:'155388', processingTime:'1-2 working days' },
+  { org:'Central Government', name:'Tata Memorial Hospital – Free Treatment', desc:'BPL patients receive free or subsidized treatment at Tata Memorial Hospital including surgery, radiation, and chemotherapy.', badge:'eligible', category:'Free Treatment', amount:'₹3,00,000', docs:['Aadhaar Card','BPL Certificate','Income Certificate','Referral Letter'], steps:['Visit social worker at Tata Memorial','Submit income proof','Medical board review','Treatment begins under free scheme'], website:'https://tmc.gov.in', phone:'022-24177000', processingTime:'2-3 working days' }
+];
+
+var currentAid = null, applicationStep = 0;
+
+function openAidModal(idx) {
+  currentAid = aidData[idx]; applicationStep = 0;
+  document.getElementById('aid-modal-overlay').style.display = 'flex';
+  renderAidDetails();
+}
+function closeAidModal() { document.getElementById('aid-modal-overlay').style.display = 'none'; }
+
+function renderAidDetails() {
+  var aid = currentAid;
+  var docsHTML = aid.docs.map(d => '<li>📄 ' + d + '</li>').join('');
+  var stepsHTML = aid.steps.map((s,i) => '<div class="modal-step"><div class="step-num">'+(i+1)+'</div><div class="step-text">'+s+'</div></div>').join('');
+  var pillClass = aid.badge==='eligible'?'green':'gold';
+  var pillText = aid.badge==='eligible'?'✓ You are Eligible':'⚡ Check Eligibility First';
+  document.getElementById('aid-modal-body').innerHTML =
+    '<div class="modal-header-pill '+pillClass+'">'+pillText+'</div>'+
+    '<div class="modal-org">'+aid.org+'</div>'+
+    '<div class="modal-title">'+aid.name+'</div>'+
+    '<div class="modal-amount">Up to '+aid.amount+'</div>'+
+    '<div class="modal-desc">'+aid.desc+'</div>'+
+    '<div class="modal-section-title">📋 Required Documents</div>'+
+    '<ul class="modal-list">'+docsHTML+'</ul>'+
+    '<div class="modal-section-title">🪜 How to Apply</div>'+
+    '<div class="modal-steps">'+stepsHTML+'</div>'+
+    '<div class="modal-info-row"><div class="modal-info-chip">⏱️ '+aid.processingTime+'</div><div class="modal-info-chip">📞 '+aid.phone+'</div></div>'+
+    '<div class="modal-actions">'+
+      '<button class="modal-btn-secondary" onclick="window.open(\''+aid.website+'\',\'_blank\')">🌐 Website</button>'+
+      '<button class="modal-btn-primary" onclick="startApplication()">Apply Now →</button>'+
+    '</div>';
+}
+
+function startApplication() { applicationStep = 1; renderApplicationForm(); }
+
+function renderApplicationForm() {
+  var steps = ['Personal','Medical','Documents','Review'];
+  var stepperHTML = steps.map((s,i) => {
+    var cls = (i+1===applicationStep)?'active':(i+1<applicationStep?'done':'');
+    var dot = i+1<applicationStep?'✓':(i+1);
+    return '<div class="app-step '+cls+'"><div class="app-step-dot">'+dot+'</div><div class="app-step-label">'+s+'</div></div>';
+  }).join('');
+  var fc = '';
+  if (applicationStep===1) fc='<div class="form-group"><label>Full Name</label><input type="text" value="Priya Mehta"></div><div class="form-group"><label>Aadhaar Number</label><input type="text" value="8421-XXXX-XXXX"></div><div class="form-group"><label>Date of Birth</label><input type="date" value="1985-03-15"></div><div class="form-group"><label>Mobile Number</label><input type="tel" value="+91 98765-XXXXX"></div><div class="form-group"><label>State</label><select><option>Maharashtra</option><option>Delhi</option><option>Karnataka</option></select></div>';
+  else if (applicationStep===2) fc='<div class="form-group"><label>Type of Cancer</label><select><option>Breast Cancer</option><option>Cervical Cancer</option><option>Lung Cancer</option></select></div><div class="form-group"><label>Stage</label><select><option>Stage I</option><option selected>Stage II</option><option>Stage III</option><option>Stage IV</option></select></div><div class="form-group"><label>Treating Hospital</label><input type="text" value="Tata Memorial Hospital, Mumbai"></div><div class="form-group"><label>Oncologist Name</label><input type="text" value="Dr. Priya Sharma"></div><div class="form-group"><label>Annual Family Income</label><select><option selected>Below ₹1,00,000</option><option>₹1L – ₹2.5L</option><option>₹2.5L – ₹5L</option></select></div>';
+  else if (applicationStep===3) {
+    var docsHTML = currentAid.docs.map((doc,i) => '<div class="doc-upload-item"><div class="doc-upload-left"><div class="doc-icon">📄</div><div><div class="doc-name">'+doc+'</div><div class="doc-status" id="doc-status-'+i+'">Tap to upload</div></div></div><button class="doc-upload-btn" id="doc-btn-'+i+'" onclick="simulateUpload('+i+')">Upload</button></div>').join('');
+    fc='<div class="doc-upload-info">📱 Upload photos or PDFs of your documents below.</div>'+docsHTML;
+  } else if (applicationStep===4) fc='<div class="review-banner">✅ All information looks good!</div><div class="review-row"><span>Applicant</span><strong>Priya Mehta</strong></div><div class="review-row"><span>Scheme</span><strong>'+currentAid.name+'</strong></div><div class="review-row"><span>Cancer Type</span><strong>Breast Cancer – Stage II</strong></div><div class="review-row"><span>Hospital</span><strong>Tata Memorial, Mumbai</strong></div><div class="review-row"><span>Max Aid</span><strong>'+currentAid.amount+'</strong></div><div class="review-row"><span>Documents</span><strong>'+currentAid.docs.length+' Uploaded ✓</strong></div><div class="review-disclaimer">By submitting, you confirm all information is accurate. CancerSaathi will forward your application to the respective authority.</div>';
+
+  var backAction = applicationStep>1?'prevStep()':'renderAidDetails()';
+  var backLabel = applicationStep>1?'← Back':'← Details';
+  var nextBtn = applicationStep<4?'<button class="modal-btn-primary" onclick="nextStep()">Next →</button>':'<button class="modal-btn-primary" onclick="submitApplication()">🚀 Submit Application</button>';
+  document.getElementById('aid-modal-body').innerHTML='<div class="app-stepper">'+stepperHTML+'</div><div class="app-form">'+fc+'</div><div class="modal-actions"><button class="modal-btn-secondary" onclick="'+backAction+'">'+backLabel+'</button>'+nextBtn+'</div>';
+}
+
+function nextStep() { applicationStep = Math.min(4,applicationStep+1); renderApplicationForm(); }
+function prevStep() { applicationStep = Math.max(1,applicationStep-1); renderApplicationForm(); }
+
+function simulateUpload(idx) {
+  var btn = document.getElementById('doc-btn-'+idx), status = document.getElementById('doc-status-'+idx);
+  if(!btn) return; btn.textContent='...'; btn.disabled=true;
+  setTimeout(() => { btn.textContent='✓ Done'; btn.style.background='#2E7D5E'; status.textContent='Uploaded successfully'; status.style.color='#2E7D5E'; }, 1200);
+}
+
+function submitApplication() {
+  var refId = 'CS-2024-' + (Math.floor(Math.random()*90000)+10000);
+  document.getElementById('aid-modal-body').innerHTML='<div class="success-screen"><div class="success-icon">🎉</div><div class="success-title">Application Submitted!</div><div class="success-sub">Your application for <strong>'+currentAid.name+'</strong> has been submitted successfully.</div><div class="success-ref">Reference ID: <strong>'+refId+'</strong></div><div class="success-timeline"><div class="tl-item done">✓ Application Received</div><div class="tl-item active">⏳ Under Review ('+currentAid.processingTime+')</div><div class="tl-item">📞 SMS update will be sent</div><div class="tl-item">💰 Aid Disbursement</div></div><div class="success-note">📲 You will receive SMS updates on your registered mobile number at each step.</div><button class="modal-btn-primary" style="width:100%;margin-top:16px;" onclick="closeAidModal()">Close</button></div>';
+}
+
+// ── ELIGIBILITY CHECKER ──
+document.getElementById('eligibility-checker-btn').addEventListener('click', function() {
+  document.getElementById('elig-modal-overlay').style.display='flex';
+  document.getElementById('elig-result-section').style.display='none';
+  document.getElementById('elig-form-section').style.display='block';
+});
+function closeEligModal() { document.getElementById('elig-modal-overlay').style.display='none'; }
+
+function runEligibilityCheck() {
+  var state = document.getElementById('elig-state').value;
+  var stage = document.getElementById('elig-stage').value;
+  document.getElementById('elig-form-section').style.display='none';
+  var mahaBonus = state==='maharashtra'?'<div class="elig-result-card green-r"><div class="er-top"><span class="er-badge eligible">✓ Eligible</span><span class="er-amount">₹1,50,000</span></div><div class="er-name">Mahatma Jyotiba Phule Jan Arogya Yojana</div><div class="er-reason">Maharashtra resident with qualifying income</div><button class="er-apply-btn" onclick="closeEligModal();openAidModal(2)">Apply Now →</button></div>':'';
+  var total = state==='maharashtra'?'₹8,30,000':'₹6,80,000';
+  document.getElementById('elig-result-section').innerHTML='<div class="elig-result-title">🎯 Your Eligibility Results</div><div class="elig-result-card green-r"><div class="er-top"><span class="er-badge eligible">✓ Eligible</span><span class="er-amount">₹5,00,000</span></div><div class="er-name">Ayushman Bharat – PMJAY</div><div class="er-reason">Income qualifies for this national scheme</div><button class="er-apply-btn" onclick="closeEligModal();openAidModal(0)">Apply Now →</button></div><div class="elig-result-card green-r"><div class="er-top"><span class="er-badge eligible">✓ Eligible</span><span class="er-amount">₹80,000</span></div><div class="er-name">Free Chemotherapy Support Grant</div><div class="er-reason">Stage '+stage+' cancer + income criteria met</div><button class="er-apply-btn" onclick="closeEligModal();openAidModal(1)">Apply Now →</button></div>'+mahaBonus+'<div class="elig-result-card green-r"><div class="er-top"><span class="er-badge eligible">✓ Eligible</span><span class="er-amount">₹3,00,000</span></div><div class="er-name">Tata Memorial Free Treatment</div><div class="er-reason">BPL status qualifies for free treatment</div><button class="er-apply-btn" onclick="closeEligModal();openAidModal(3)">Apply Now →</button></div><div class="elig-total-box">💰 Total Potential Aid: <strong>'+total+'</strong></div><button class="modal-btn-secondary" style="width:100%;margin-top:12px;" onclick="closeEligModal()">Close</button>';
+  document.getElementById('elig-result-section').style.display='block';
+}
+
+// ── SOS ──
+var sosCountdown = 3, sosInterval = null;
+var sosBtn = document.getElementById('sos-main-btn');
+if (sosBtn) {
+  sosBtn.addEventListener('mousedown', startSosHold);
+  sosBtn.addEventListener('touchstart', startSosHold, {passive:true});
+  sosBtn.addEventListener('mouseup', cancelSosHold);
+  sosBtn.addEventListener('mouseleave', cancelSosHold);
+  sosBtn.addEventListener('touchend', cancelSosHold);
+}
+function startSosHold() {
+  sosCountdown=3; updateSosBtn(3);
+  sosInterval = setInterval(() => {
+    sosCountdown--;
+    updateSosBtn(sosCountdown);
+    if (sosCountdown<=0) { clearInterval(sosInterval); sosInterval=null; triggerSOS(); }
+  }, 1000);
+}
+function cancelSosHold() {
+  if (sosInterval) { clearInterval(sosInterval); sosInterval=null; }
+  if (sosCountdown>0) {
+    var btn = document.getElementById('sos-main-btn');
+    if (btn) { btn.innerHTML='<span class="sos-icon">🆘</span><span>CALL</span><span>SOS</span>'; btn.style.background='white'; btn.style.color='var(--red)'; }
+  }
+}
+function updateSosBtn(count) {
+  var btn = document.getElementById('sos-main-btn');
+  if (!btn) return;
+  btn.innerHTML='<span style="font-size:32px;font-weight:900;">'+count+'</span><span style="font-size:10px;">Hold...</span>';
+  btn.style.background='#ff4444'; btn.style.color='white';
+}
+function triggerSOS() {
+  document.getElementById('sos-active-overlay').style.display='flex';
+  var seqItems=['📍 Locating your GPS position','🏥 Finding nearest cancer hospital','📱 Alerting Rahul (Husband)','📱 Alerting Dr. Priya Sharma','✅ All contacts notified!'];
+  var cont = document.getElementById('sos-sequence');
+  cont.innerHTML = seqItems.map((s,i) => '<div class="sos-seq-item" id="ssi-'+i+'">◷ '+s+'...</div>').join('');
+  seqItems.forEach((s,i) => {
+    setTimeout(() => {
+      var el=document.getElementById('ssi-'+i);
+      if (el) { el.className='sos-seq-item done'; el.innerHTML='✅ '+s; }
+      if (i===seqItems.length-1) setTimeout(() => { document.getElementById('sos-result').style.display='block'; }, 400);
+    }, 400+i*1100);
+  });
+}
+function closeSosOverlay() {
+  document.getElementById('sos-active-overlay').style.display='none';
+  document.getElementById('sos-result').style.display='none';
+  var btn = document.getElementById('sos-main-btn');
+  if (btn) { btn.innerHTML='<span class="sos-icon">🆘</span><span>CALL</span><span>SOS</span>'; btn.style.background='white'; btn.style.color='var(--red)'; }
+  sosCountdown=3;
+}
+
+// ── CALL MODAL ──
+var callTimerInterval = null;
+function showCallModal(name) {
+  document.getElementById('call-modal-overlay').style.display='flex';
+  document.getElementById('call-modal-name').textContent=name;
+  var sec=0;
+  callTimerInterval = setInterval(() => {
+    sec++; var el=document.getElementById('call-timer');
+    if (el) el.textContent = pad(Math.floor(sec/60))+':'+pad(sec%60);
+  }, 1000);
+}
+function pad(n) { return n<10?'0'+n:''+n; }
+function endCall() { clearInterval(callTimerInterval); document.getElementById('call-modal-overlay').style.display='none'; document.getElementById('call-timer').textContent='00:00'; }
+
+// ── CONTACT BUTTONS ──
+document.getElementById('contacts-container').addEventListener('click', function(e) {
+  var btn = e.target.closest('.contact-btn');
+  if (!btn) return;
+  var card = btn.closest('.contact-card');
+  var name = card ? card.querySelector('.contact-name').textContent : 'Contact';
+  if (btn.classList.contains('call')) showCallModal(name);
+  else showToast('💬 Opening chat with ' + name + '...');
+});
+document.querySelectorAll('.helpline-call-btn').forEach(btn => {
+  btn.addEventListener('click', () => showCallModal(btn.dataset.name || 'Helpline'));
+});
+
+// ── ADD CONTACT ──
+document.getElementById('add-contact-btn').addEventListener('click', () => {
+  document.getElementById('add-contact-modal').style.display='flex';
+});
+function closeAddContactModal() { document.getElementById('add-contact-modal').style.display='none'; }
+function saveContact() {
+  var name=document.getElementById('new-contact-name').value.trim();
+  var phone=document.getElementById('new-contact-phone').value.trim();
+  var role=document.getElementById('new-contact-role').value.trim()||'Emergency Contact';
+  if (!name||!phone) { showToast('⚠️ Please fill name and phone number'); return; }
+  var cont=document.getElementById('contacts-container');
+  var div=document.createElement('div'); div.className='contact-card';
+  div.innerHTML='<div class="contact-avatar" style="background:#F3E8FF;">👤</div><div><div class="contact-name">'+name+'</div><div class="contact-role">'+role+'</div></div><div class="contact-actions"><button class="contact-btn call" data-name="'+name+'">📞</button><button class="contact-btn msg" data-name="'+name+'">💬</button></div>';
+  cont.appendChild(div);
+  ['new-contact-name','new-contact-phone','new-contact-role'].forEach(id => document.getElementById(id).value='');
+  closeAddContactModal();
+  showToast('✅ '+name+' added as emergency contact');
+}
+</script>
+</body>
+</html>
